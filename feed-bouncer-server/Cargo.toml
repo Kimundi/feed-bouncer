@@ -1,0 +1,13 @@
+[package]
+name = "feed-bouncer-server"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+feed-bouncer-database = { path = "../feed-bouncer-database" }
+rocket = { version = "0.5.0-rc.1", git = "https://github.com/SergioBenitez/Rocket.git" }
+rocket_dyn_templates = { version = "0.1.0-rc.1", git = "https://github.com/SergioBenitez/Rocket.git", features = ["handlebars"] }
+serde = "1.0.127"
+clap = "3.0.0-beta.4"

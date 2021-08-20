@@ -1,0 +1,15 @@
+Feeds - <a href="/refresh">Update</a> - Last update: {{last_update}} <br>
+<ul>
+    {{#each items}}
+    <li>
+        [{{this.feed_name}}]
+        {{#if this.content_link}}
+        <a href="{{this.content_link}}">
+            {{this.item_name}}
+        </a>
+        {{else}}
+        {{this.item_name}}
+        {{/if}}
+    </li>
+    {{/each}}
+</ul>

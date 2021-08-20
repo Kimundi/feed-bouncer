@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "feed-bouncer-database",
+    "feed-bouncer-server",
+    "feed-bouncer-cli",
+]
