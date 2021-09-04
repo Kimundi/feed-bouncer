@@ -330,6 +330,7 @@ impl Database {
         }
 
         self.last_feed_update = Some(chrono::Utc::now());
+        println!("Done");
     }
 
     pub async fn import_from_rss(&mut self, url: &str, initial_tags: &[String]) {

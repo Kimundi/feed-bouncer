@@ -5,7 +5,14 @@
 </head>
 
 <body>
-    {{title}} - <a href="/">All Feeds</a><br>
+    <a href="/">Feeds</a>
+    -
+    {{title}}
+    -
+    {{#if feed_url}}
+    <a href="{{feed_url}}">source</a>
+    {{/if}}
+    <br>
     Tags <br>
     <ul>
         {{#each tags}}

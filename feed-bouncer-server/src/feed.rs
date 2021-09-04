@@ -21,6 +21,7 @@ struct Context<'a> {
     known_tags: Vec<&'a str>,
     items: Vec<Item<'a>>,
     feed_id: &'a str,
+    feed_url: Option<&'a str>,
 }
 
 #[get("/feed/<feed_id>")]
@@ -30,9 +31,9 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
     let Feed {
         name: _,
         parent: _,
+        opml: _,
+        feed_headers: _, // ignore for now, but could have useful extra metadata
         feed_url,
-        opml,
-        feed_headers,
         feeds,
         tags,
         ..
@@ -74,6 +75,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
             known_tags,
             title: feed.display_name(),
             feed_id: &feed_id,
+            feed_url: feed_url.as_deref(),
         },
     ))
 }
