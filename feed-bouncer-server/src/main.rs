@@ -8,6 +8,7 @@ use feed_bouncer_database::Database;
 use rocket::tokio::sync::RwLock;
 use rocket_dyn_templates::Template;
 
+mod feed;
 mod index;
 mod refresh;
 
@@ -30,7 +31,15 @@ async fn main() {
     refresh::start_periodic_refresh(&db);
 
     let cfg = rocket::build()
-        .mount("/", routes![index::index, refresh::refresh,])
+        .mount(
+            "/",
+            routes![
+                index::index,
+                refresh::refresh,
+                feed::feed,
+                feed::feed_add_tag
+            ],
+        )
         .attach(Template::fairing())
         .manage(db);
 

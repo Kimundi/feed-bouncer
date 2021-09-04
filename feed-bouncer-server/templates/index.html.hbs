@@ -1,7 +1,7 @@
 <html>
 
 <head>
-
+    <title>Feed Bouncer</title>
 </head>
 
 <body>
@@ -10,7 +10,7 @@
     <ul>
         {{#each items}}
         <li>
-            [{{this.feed_name}}]
+            [<a href="/feed/{{this.feed_id}}">{{this.feed_name}}</a>]
             {{#if this.content_link}}
             <a href="{{this.content_link}}">
                 {{this.item_name}}

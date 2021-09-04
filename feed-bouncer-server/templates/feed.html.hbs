@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <title>Feed Bouncer - {{title}}</title>
+</head>
+
+<body>
+    {{title}} - <a href="/">All Feeds</a><br>
+    Tags <br>
+    <ul>
+        {{#each tags}}
+        <li>
+            {{this}}
+        </li>
+        {{/each}}
+        <li>
+            <form action="/feed/{{feed_id}}/tag/add" , method="post">
+                <input type="text" id="name_input" name="name" list="known_tags">
+                <datalist id="known_tags">
+                    {{#each known_tags}} <option value="{{this}}"> {{/each}}
+                </datalist>
+            </form>
+        </li>
+    </ul>
+    Feeds <br>
+    <ul>
+        {{#each items}}
+        <li>
+            {{#if this.content_link}}
+            <a href="{{this.content_link}}">
+                {{this.item_name}}
+            </a>
+            {{else}}
+            {{this.item_name}}
+            {{/if}}
+        </li>
+        {{/each}}
+    </ul>
+</body>
+
+</html>

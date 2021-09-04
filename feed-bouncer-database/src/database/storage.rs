@@ -150,6 +150,9 @@ impl Storage {
     pub fn get_or_insert(&mut self, feed_id: FeedId, feed: &Feed) -> &mut Feed {
         self.sources.entry(feed_id).or_insert_with(|| feed.clone())
     }
+    pub fn get(&self, feed_id: &FeedId) -> Option<&Feed> {
+        self.sources.get(feed_id)
+    }
     pub fn get_mut(&mut self, feed_id: &FeedId) -> Option<&mut Feed> {
         self.sources.get_mut(feed_id)
     }

@@ -6,6 +6,7 @@ use crate::SyncDatabase;
 #[derive(serde::Serialize)]
 struct Item<'a> {
     feed_name: &'a str,
+    feed_id: &'a str,
     item_name: &'a str,
     content_link: Option<&'a str>,
 }
@@ -26,10 +27,11 @@ pub async fn index(db: &State<SyncDatabase>) -> Template {
         let mut feeds = db.get_items_ordered_by_time();
         feeds.reverse();
         // let feeds = &feeds[0..(feeds.len().min(10))];
-        for (feed, item) in &feeds[..] {
+        for (feed_id, feed, item) in &feeds[..] {
             let content_link = item.content_link();
             items.push(Item {
                 feed_name: feed.display_name(),
+                feed_id: &feed_id,
                 item_name: item
                     .display_title_without_prefix(&feed.display_name())
                     .unwrap_or("???"),

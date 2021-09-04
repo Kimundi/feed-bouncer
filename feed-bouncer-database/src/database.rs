@@ -118,21 +118,33 @@ impl Database {
         ret
     }
 
-    pub fn get_items_ordered_by_time(&self) -> Vec<(&Feed, &FeedItem)> {
+    pub fn get_items_ordered_by_time(&self) -> Vec<(&FeedId, &Feed, &FeedItem)> {
         let mut items = Vec::new();
-        for (_, feed) in self.storage.iter() {
+        for (feed_id, feed) in self.storage.iter() {
             for item in &feed.feeds {
-                items.push((feed, item));
+                items.push((feed_id, feed, item));
             }
         }
 
-        FeedItem::sort(&mut items, |v| &v.1);
+        FeedItem::sort(&mut items, |v| &v.2);
 
         items
     }
 
+    pub fn get_feeds(&self) -> Vec<(&FeedId, &Feed)> {
+        self.storage.iter().collect()
+    }
+
     pub fn last_feed_update(&self) -> &Option<DateTime<Utc>> {
         &self.last_feed_update
+    }
+
+    pub fn get(&self, feed_id: &FeedId) -> Option<&Feed> {
+        self.storage.get(feed_id)
+    }
+
+    pub fn get_mut(&mut self, feed_id: &FeedId) -> Option<&mut Feed> {
+        self.storage.get_mut(feed_id)
     }
 }
 

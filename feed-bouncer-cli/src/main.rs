@@ -30,7 +30,7 @@ async fn main() -> Result<(), DbError> {
         let mut feeds = db.get_items_ordered_by_time();
         feeds.reverse();
         let feeds = &feeds[0..(feeds.len().min(10))];
-        for (feed, item) in feeds {
+        for (_feed_id, feed, item) in feeds {
             println!(
                 "  [{}] {}",
                 feed.display_name(),
