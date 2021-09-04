@@ -1,12 +1,12 @@
 use rocket::State;
 use rocket_dyn_templates::Template;
 
-use crate::common::{Filter, Item, SyncDatabase};
+use crate::common::{Filter, Item, Nav, SyncDatabase};
 
 #[derive(serde::Serialize)]
 struct Index<'a> {
     items: Vec<Item<'a>>,
-    last_update: Option<String>,
+    nav: Nav<'a>,
 }
 
 #[get("/?<filter>")]
@@ -39,7 +39,7 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
         "index",
         &Index {
             items,
-            last_update: db.last_feed_update().map(|v| v.to_rfc3339()),
+            nav: Nav::new(&db, &filter),
         },
     )
 }

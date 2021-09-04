@@ -1,7 +1,7 @@
 use rocket::State;
 use rocket_dyn_templates::Template;
 
-use crate::common::{Filter, SyncDatabase};
+use crate::common::{Filter, Nav, SyncDatabase};
 
 #[derive(serde::Serialize)]
 pub struct Feed<'a> {
@@ -13,7 +13,7 @@ pub struct Feed<'a> {
 #[derive(serde::Serialize)]
 struct Feeds<'a> {
     feeds: Vec<Feed<'a>>,
-    last_update: Option<String>,
+    nav: Nav<'a>,
 }
 
 #[get("/feeds?<filter>")]
@@ -43,7 +43,7 @@ pub async fn feeds(db: &State<SyncDatabase>, filter: Option<String>) -> Template
         "feeds",
         &Feeds {
             feeds,
-            last_update: db.last_feed_update().map(|v| v.to_rfc3339()),
+            nav: Nav::new(&db, &filter),
         },
     )
 }

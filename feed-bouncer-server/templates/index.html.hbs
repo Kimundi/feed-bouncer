@@ -5,7 +5,17 @@
 </head>
 
 <body>
-    <a href="/">Home</a> - <a href="/feeds">Feeds</a> - <a href="/refresh">Update</a> - Last update: {{last_update}}
+    <a href="{{nav.home_link}}">Home</a>
+    -
+    <a href="{{nav.feeds_link}}">Feeds</a>
+    -
+    <a href="/refresh">Update</a>
+    -
+    <form style="display:inline;">
+        <input type="search" id="filter" name="filter" value="{{nav.filter}}">
+    </form>
+    -
+    Last update: {{nav.last_update}}
     <br>
     <ul>
         {{#each items}}

@@ -11,6 +11,25 @@ pub struct Item<'a> {
     pub content_link: Option<&'a str>,
 }
 
+#[derive(serde::Serialize)]
+pub struct Nav<'a> {
+    last_update: Option<String>,
+    filter: &'a str,
+    home_link: String,
+    feeds_link: String,
+}
+
+impl<'a> Nav<'a> {
+    pub fn new(db: &Database, filter: &'a Filter) -> Self {
+        Self {
+            last_update: db.last_feed_update().map(|v| v.to_rfc3339()),
+            filter: filter.raw(),
+            home_link: uri!(crate::index::index(filter.raw_opt())).to_string(),
+            feeds_link: uri!(crate::feeds::feeds(filter.raw_opt())).to_string(),
+        }
+    }
+}
+
 pub type SyncDatabase = Arc<RwLock<Database>>;
 
 pub enum FilterPattern {
@@ -19,6 +38,7 @@ pub enum FilterPattern {
 }
 pub struct Filter {
     pattern: Vec<FilterPattern>,
+    raw: String,
 }
 
 impl Filter {
@@ -42,7 +62,7 @@ impl Filter {
             }
         }
 
-        Self { pattern }
+        Self { pattern, raw }
     }
     pub fn matches(&self, feed: &Feed) -> bool {
         for pattern in &self.pattern {
@@ -60,5 +80,11 @@ impl Filter {
             }
         }
         true
+    }
+    pub fn raw(&self) -> &str {
+        &self.raw
+    }
+    pub fn raw_opt(&self) -> Option<&str> {
+        (!self.raw.is_empty()).then(|| &self.raw[..])
     }
 }
