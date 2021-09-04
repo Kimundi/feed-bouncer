@@ -10,7 +10,7 @@ use rss::{
 
 use crate::database::{
     storage::{Feed, FeedHeader, FeedItem},
-    Database,
+    Database, FeedId,
 };
 
 pub type ExtensionMap = BTreeMap<String, BTreeMap<String, Vec<Extension>>>;
@@ -274,19 +274,21 @@ impl Hash2Tree for rss::Item {
     }
 }
 
-impl Database {
-    pub async fn update_feeds(&mut self) {
-        'outer: for (_feed_id, source) in self.storage.iter_mut() {
-            println!("Query RSS feed of [{}]...", &source.display_name());
-            let rss_feed = match &source.feed_url {
-                Some(rss) => rss,
-                None => continue,
-            };
+pub struct UpdateFeedsTask {
+    feeds: Vec<(FeedId, String, HashSet<ItemKey>, String)>,
+    seq_no: u64,
+}
+impl UpdateFeedsTask {
+    pub async fn run(self) -> UpdateFeedsTaskResult {
+        let mut results = HashMap::new();
+
+        'outer: for (feed_id, rss_feed, existing_feeds, name) in self.feeds {
+            println!("Query feed of [{}]...", name);
 
             let mut retries = 0;
             let channel = loop {
                 retries += 1;
-                match download(rss_feed).await {
+                match download(&rss_feed).await {
                     Ok(res) => break res,
                     _ => {
                         if retries > 5 {
@@ -308,9 +310,46 @@ impl Database {
             FeedItem::sort(&mut current_feed_items, |v| v);
             let header = FeedHeader::Rss(header);
 
-            if !source.feed_headers.contains(&header) {
-                source.feed_headers.push(header);
+            let (feed_headers, feeds): &mut (Vec<FeedHeader>, Vec<FeedItem>) =
+                results.entry(feed_id).or_default();
+            feed_headers.push(header);
+
+            for item in current_feed_items {
+                let key = item_key(&item);
+                if !existing_feeds.contains(&key) {
+                    println!("  New [{}]", item.display_title().unwrap_or(""));
+                    feeds.push(item);
+                }
             }
+        }
+
+        UpdateFeedsTaskResult {
+            results,
+            seq_no: self.seq_no,
+        }
+    }
+}
+
+pub struct UpdateFeedsTaskResult {
+    results: HashMap<FeedId, (Vec<FeedHeader>, Vec<FeedItem>)>,
+    seq_no: u64,
+}
+
+impl Database {
+    pub fn update_feeds_task(&self) -> UpdateFeedsTask {
+        let mut feeds = Vec::new();
+
+        for (feed_id, source) in self.storage.iter() {
+            /*
+            println!(
+                "Prepare to query RSS feed of [{}]...",
+                &source.display_name()
+            );
+            */
+            let rss_feed = match &source.feed_url {
+                Some(rss) => rss,
+                None => continue,
+            };
 
             let mut existing = HashSet::new();
             for item in &source.feeds {
@@ -318,19 +357,49 @@ impl Database {
                 existing.insert(key);
             }
 
-            for item in current_feed_items {
-                let key = item_key(&item);
-                if !existing.contains(&key) {
-                    println!("  Add [{}]", item.display_title().unwrap_or(""));
-                    source.feeds.push(item);
-                }
-            }
-
-            FeedItem::sort(&mut source.feeds, |v| v);
+            feeds.push((
+                feed_id.clone(),
+                rss_feed.clone(),
+                existing,
+                source.display_name().to_string(),
+            ));
         }
 
+        println!("Prepared query tasks");
+        UpdateFeedsTask {
+            feeds,
+            seq_no: self.get_update_seq_no(),
+        }
+    }
+
+    pub async fn commit_from(&mut self, results: UpdateFeedsTaskResult) {
+        if results.seq_no != self.get_update_seq_no() {
+            println!("Detected an update race condition, discarding",);
+            return;
+        }
+
+        println!("Committing new items, seq_no={}...", results.seq_no);
+        for (feed_id, (feed_headers, feed_items)) in results.results {
+            if let Some(feed) = self.get_mut(&feed_id) {
+                // println!("Commit feed of [{}]...", &feed.display_name());
+                for feed_header in feed_headers {
+                    if !feed.feed_headers.contains(&feed_header) {
+                        feed.feed_headers.push(feed_header);
+                    }
+                }
+                feed.feeds.extend(feed_items);
+                FeedItem::sort(&mut feed.feeds, |v| v);
+            }
+        }
         self.last_feed_update = Some(chrono::Utc::now());
-        println!("Done");
+        self.set_update_seq_no(results.seq_no + 1);
+        println!("Committed new items, seq_no={}", self.get_update_seq_no());
+    }
+
+    pub async fn update_feeds(&mut self) {
+        let tasks = self.update_feeds_task();
+        let results = tasks.run().await;
+        self.commit_from(results).await;
     }
 
     pub async fn import_from_rss(&mut self, url: &str, initial_tags: &[String]) {
@@ -350,7 +419,8 @@ impl Database {
     }
 }
 
-fn item_key(item: &FeedItem) -> (Option<String>, Option<String>) {
+type ItemKey = (Option<String>, Option<String>);
+fn item_key(item: &FeedItem) -> ItemKey {
     match item {
         FeedItem::Rss(item) => (item.title.clone(), item.pub_date.clone()),
     }

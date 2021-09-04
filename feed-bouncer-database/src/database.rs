@@ -65,6 +65,7 @@ pub struct Database {
     pub(crate) storage_path: PathBuf,
     pub(crate) lookup: SourceLookup,
     pub(crate) last_feed_update: Option<DateTime<Utc>>,
+    pub(crate) update_seq_no: u64,
 }
 
 impl Database {
@@ -77,6 +78,7 @@ impl Database {
             storage_path,
             lookup: SourceLookup::default(),
             last_feed_update: None,
+            update_seq_no: 0,
         };
         ret.recreate_cache();
         ret
@@ -145,6 +147,15 @@ impl Database {
 
     pub fn get_mut(&mut self, feed_id: &FeedId) -> Option<&mut Feed> {
         self.storage.get_mut(feed_id)
+    }
+
+    pub fn get_update_seq_no(&self) -> u64 {
+        self.update_seq_no
+    }
+
+    pub fn set_update_seq_no(&mut self, v: u64) {
+        assert!(self.update_seq_no < v);
+        self.update_seq_no = v;
     }
 }
 

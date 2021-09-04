@@ -12,9 +12,20 @@ pub async fn refresh(db: &State<SyncDatabase>) -> Redirect {
 
 pub fn start_refresh(db: &SyncDatabase) {
     let db: SyncDatabase = db.clone();
+
     rocket::tokio::spawn(async move {
+        // get tasks during a temporary read lock
+        let tasks = {
+            let db = db.read().await;
+            db.update_feeds_task()
+        };
+
+        // Run the task updates while the lock is not held
+        let results = tasks.run().await;
+
+        // commit the updates
         let mut db = db.write().await;
-        db.update_feeds().await;
+        db.commit_from(results).await;
         db.save();
     });
 }

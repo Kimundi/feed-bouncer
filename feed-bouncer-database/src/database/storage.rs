@@ -144,9 +144,11 @@ impl Storage {
     pub fn iter(&self) -> impl Iterator<Item = (&FeedId, &Feed)> + '_ {
         self.sources.iter()
     }
+    /*
     pub fn iter_mut(&mut self) -> impl Iterator<Item = (&FeedId, &mut Feed)> + '_ {
         self.sources.iter_mut()
     }
+    */
     pub fn get_or_insert(&mut self, feed_id: FeedId, feed: &Feed) -> &mut Feed {
         self.sources.entry(feed_id).or_insert_with(|| feed.clone())
     }
