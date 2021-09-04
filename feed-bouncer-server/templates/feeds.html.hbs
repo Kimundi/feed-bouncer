@@ -1,0 +1,19 @@
+<html>
+
+<head>
+    <title>Feed Bouncer</title>
+</head>
+
+<body>
+    <a href="/">Home</a> - <a href="/feeds">Feeds</a> - <a href="/refresh">Update</a> - Last update: {{last_update}}
+    <br>
+    <ul>
+        {{#each feeds}}
+        <li>
+            <a href="/feed/{{this.feed_id}}">{{this.feed_name}}</a>: {{this.tags}}
+        </li>
+        {{/each}}
+    </ul>
+</body>
+
+</html>

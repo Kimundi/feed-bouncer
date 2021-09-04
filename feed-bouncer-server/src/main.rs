@@ -8,7 +8,11 @@ use feed_bouncer_database::Database;
 use rocket::tokio::sync::RwLock;
 use rocket_dyn_templates::Template;
 
+use crate::common::SyncDatabase;
+
+mod common;
 mod feed;
+mod feeds;
 mod index;
 mod refresh;
 
@@ -18,8 +22,6 @@ struct Opts {
     #[clap(short, long)]
     storage_path: Option<PathBuf>,
 }
-
-type SyncDatabase = Arc<RwLock<Database>>;
 
 #[rocket::main]
 async fn main() {
@@ -37,7 +39,8 @@ async fn main() {
                 index::index,
                 refresh::refresh,
                 feed::feed,
-                feed::feed_add_tag
+                feed::feed_add_tag,
+                feeds::feeds,
             ],
         )
         .attach(Template::fairing())

@@ -1,15 +1,7 @@
 use rocket::State;
 use rocket_dyn_templates::Template;
 
-use crate::SyncDatabase;
-
-#[derive(serde::Serialize)]
-struct Item<'a> {
-    feed_name: &'a str,
-    feed_id: &'a str,
-    item_name: &'a str,
-    content_link: Option<&'a str>,
-}
+use crate::common::{Filter, Item, SyncDatabase};
 
 #[derive(serde::Serialize)]
 struct Index<'a> {
@@ -17,8 +9,9 @@ struct Index<'a> {
     last_update: Option<String>,
 }
 
-#[get("/")]
-pub async fn index(db: &State<SyncDatabase>) -> Template {
+#[get("/?<filter>")]
+pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template {
+    let filter = Filter::new(filter);
     let mut items = Vec::new();
 
     let db = db.read().await;
@@ -28,14 +21,16 @@ pub async fn index(db: &State<SyncDatabase>) -> Template {
         feeds.reverse();
         // let feeds = &feeds[0..(feeds.len().min(10))];
         for (feed_id, feed, item) in &feeds[..] {
-            let content_link = item.content_link();
+            if !filter.matches(feed) {
+                continue;
+            }
             items.push(Item {
                 feed_name: feed.display_name(),
                 feed_id: &feed_id,
                 item_name: item
                     .display_title_without_prefix(&feed.display_name())
                     .unwrap_or("???"),
-                content_link,
+                content_link: item.content_link(),
             });
         }
     }

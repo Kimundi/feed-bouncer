@@ -5,14 +5,7 @@ use rocket::form::Form;
 use rocket::{response::Redirect, State};
 use rocket_dyn_templates::Template;
 
-use crate::SyncDatabase;
-#[derive(serde::Serialize)]
-struct Item<'a> {
-    feed_name: &'a str,
-    feed_id: &'a str,
-    item_name: &'a str,
-    content_link: Option<&'a str>,
-}
+use crate::common::{Item, SyncDatabase};
 
 #[derive(serde::Serialize)]
 struct Context<'a> {

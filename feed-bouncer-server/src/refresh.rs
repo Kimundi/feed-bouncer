@@ -7,7 +7,7 @@ use crate::SyncDatabase;
 #[get("/refresh")]
 pub async fn refresh(db: &State<SyncDatabase>) -> Redirect {
     start_refresh(db);
-    Redirect::to(uri!(crate::index::index))
+    Redirect::to(uri!(crate::index::index(None::<String>)))
 }
 
 pub fn start_refresh(db: &SyncDatabase) {

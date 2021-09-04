@@ -393,7 +393,7 @@ impl Database {
         }
         self.last_feed_update = Some(chrono::Utc::now());
         self.set_update_seq_no(results.seq_no + 1);
-        println!("Committed new items, seq_no={}", self.get_update_seq_no());
+        println!("  Done, seq_no={}", self.get_update_seq_no());
     }
 
     pub async fn update_feeds(&mut self) {
