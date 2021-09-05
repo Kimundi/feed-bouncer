@@ -183,11 +183,13 @@ impl Database {
         println!("  Done, seq_no={}", self.get_update_seq_no());
     }
 
+    /*
     pub async fn update_feeds(&mut self) {
         let tasks = self.update_feeds_task();
         let results = tasks.run().await;
         self.commit_from(results).await;
     }
+    */
 
     pub async fn import_from_rss(&mut self, url: &str, initial_tags: &[String]) {
         if let Some(feeds) = self.lookup.check_rss(url) {

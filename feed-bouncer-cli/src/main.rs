@@ -21,7 +21,9 @@ async fn main() -> Result<(), DbError> {
 
     let mut db = Database::init(opts.storage_path);
     db.import().await;
-    db.update_feeds().await;
+    let tasks = db.update_feeds_task();
+    let results = tasks.run().await;
+    db.commit_from(results).await;
     db.save();
 
     if opts.recent {

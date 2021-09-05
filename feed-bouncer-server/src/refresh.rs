@@ -34,11 +34,7 @@ pub fn start_periodic_refresh(db: &SyncDatabase) {
     let db: SyncDatabase = db.clone();
     rocket::tokio::spawn(async move {
         loop {
-            {
-                let mut db = db.write().await;
-                db.update_feeds().await;
-                db.save();
-            }
+            start_refresh(&db);
             rocket::tokio::time::sleep(Duration::from_secs(60 * 60)).await;
         }
     });
