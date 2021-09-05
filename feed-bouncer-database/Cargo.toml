@@ -13,5 +13,5 @@ rss = { version = "1", features = ["with-serde", "atom"] }
 chrono = "0.4.19"
 opml = "1"
 sha2 = "0.9.5"
-feed-rs = { version = "0.6.1", features = [] }
+feed-rs = { version = "0.6.1" }
 thiserror= "1.0.26"

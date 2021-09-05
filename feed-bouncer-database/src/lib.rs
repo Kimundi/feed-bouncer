@@ -1,7 +1,7 @@
 mod database;
+mod feeds;
 mod import;
 mod opml_utils;
-mod rss_utils;
 
 pub use database::storage::Feed;
 pub use database::storage::FeedHeader;

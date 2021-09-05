@@ -5,25 +5,25 @@ use std::{
 
 use chrono::{DateTime, FixedOffset};
 
-use crate::{
-    database::{FeedId, LookupKey, SourceLookup},
-    rss_utils::{ChannelHeader, Item},
-};
+use crate::database::{FeedId, LookupKey, SourceLookup};
 
 #[derive(serde::Deserialize, serde::Serialize, Clone, Debug, PartialEq)]
 pub enum FeedHeader {
-    Rss(ChannelHeader),
+    Rss(crate::feeds::rss::ChannelHeader),
+    FeedRs(crate::feeds::feed_rs::FeedHeader),
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone, Debug, PartialEq)]
 pub enum FeedItem {
-    Rss(Item),
+    Rss(crate::feeds::rss::Item),
+    FeedRs(crate::feeds::feed_rs::Entry),
 }
 
 impl FeedItem {
     pub fn display_title(&self) -> Option<&str> {
         match self {
             FeedItem::Rss(item) => item.title.as_deref().map(str::trim),
+            FeedItem::FeedRs(entry) => entry.title.as_ref().map(|v| v.content.trim()),
         }
     }
     pub fn publish_date(&self) -> Option<DateTime<FixedOffset>> {
@@ -32,6 +32,10 @@ impl FeedItem {
                 .pub_date
                 .as_ref()
                 .and_then(|v| DateTime::parse_from_rfc2822(v).ok()),
+            FeedItem::FeedRs(entry) => entry.published.as_ref().map(|v| {
+                // TODO: This is ugly
+                DateTime::parse_from_rfc2822(&v.to_rfc2822()).unwrap()
+            }),
         }
     }
     pub fn publish_date_or_old(&self) -> DateTime<FixedOffset> {
@@ -55,6 +59,7 @@ impl FeedItem {
     pub fn content_link(&self) -> Option<&str> {
         match self {
             FeedItem::Rss(item) => item.link.as_deref(),
+            FeedItem::FeedRs(entry) => entry.links.first().map(|link| &link.href[..]),
         }
     }
 }
