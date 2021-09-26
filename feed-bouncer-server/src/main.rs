@@ -13,6 +13,7 @@ use crate::common::SyncDatabase;
 mod common;
 mod feed;
 mod feeds;
+mod import;
 mod index;
 mod refresh;
 
@@ -41,6 +42,8 @@ async fn main() {
                 feed::feed,
                 feed::feed_add_tag,
                 feeds::feeds,
+                import::import,
+                import::import_rss,
             ],
         )
         .attach(Template::fairing())

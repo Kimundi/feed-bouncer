@@ -23,7 +23,10 @@ pub async fn feeds(db: &State<SyncDatabase>, filter: Option<String>) -> Template
 
     let db = db.read().await;
 
-    for (feed_id, feed) in db.get_feeds() {
+    let mut feeds_src = db.get_feeds();
+    feeds_src.sort_by_key(|(_, feed)| feed.display_name());
+
+    for (feed_id, feed) in feeds_src {
         if !filter.matches(feed) {
             continue;
         }

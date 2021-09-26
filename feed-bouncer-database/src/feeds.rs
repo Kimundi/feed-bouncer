@@ -191,20 +191,27 @@ impl Database {
     }
     */
 
-    pub async fn import_from_rss(&mut self, url: &str, initial_tags: &[String]) {
-        if let Some(feeds) = self.lookup.check_rss(url) {
-            for feed in feeds {
-                let source = self.storage.get_mut(feed).unwrap();
+    pub async fn import_from_rss(
+        &mut self,
+        url: &str,
+        initial_tags: &[String],
+    ) -> reqwest::Result<HashSet<FeedId>> {
+        if let Some(feed_ids) = self.lookup.check_rss(url) {
+            for feed_id in feed_ids {
+                let source = self.storage.get_mut(feed_id).unwrap();
                 source.tags.extend(initial_tags.iter().cloned());
             }
-            return;
+            return Ok(feed_ids.clone());
         }
-        if let Some(channel) = download(url).await.unwrap() {
+        if let Some(channel) = download(url).await? {
             let mut source = Feed::new(channel.title().to_owned());
             source.feed_url = Some(url.to_owned());
             source.tags.extend(initial_tags.iter().cloned());
-            self.insert(source);
+            let feed_id = self.insert(source);
+
+            return Ok(<_>::into_iter([feed_id]).collect());
         }
+        return Ok(HashSet::new());
     }
 }
 
