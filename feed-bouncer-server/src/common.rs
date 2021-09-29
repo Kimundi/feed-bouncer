@@ -1,4 +1,4 @@
-use std::{ops::Deref, sync::Arc};
+use std::sync::Arc;
 
 use feed_bouncer_database::{Database, Feed};
 use rocket::tokio::sync::RwLock;
