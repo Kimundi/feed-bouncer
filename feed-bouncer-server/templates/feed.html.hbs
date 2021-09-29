@@ -22,7 +22,7 @@
         {{/each}}
         <li>
             <form action="/feed/{{feed_id}}/tag/add" , method="post">
-                <input type="text" id="name_input" name="name" list="known_tags">
+                <input type="text" id="name_input" name="name" list="known_tags" autocomplete="off">
                 <datalist id="known_tags">
                     {{#each known_tags}} <option value="{{this}}"> {{/each}}
                 </datalist>
