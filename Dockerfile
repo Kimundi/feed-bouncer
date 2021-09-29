@@ -7,7 +7,7 @@ RUN \
     --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/feed-bouncer/target \
-    cargo build -p feed-bouncer-server --release
+    cargo install --path feed-bouncer-server
 
 VOLUME [ "/storage" ]
-CMD target/release/feed-bouncer-server --storage-path /storage
+CMD feed-bouncer-server --storage-path /storage
