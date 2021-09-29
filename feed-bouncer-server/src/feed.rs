@@ -32,7 +32,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         ..
     } = feed;
 
-    let tags = tags.iter().map(|s| s.as_str()).collect();
+    let tags: Vec<_> = tags.iter().map(|s| s.as_str()).collect();
 
     let mut items = Vec::new();
     {
@@ -58,6 +58,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         .collect::<BTreeSet<_>>()
         .into_iter()
         .map(|s| s.as_str())
+        .filter(|tag| !tags.contains(&tag))
         .collect();
 
     Some(Template::render(
