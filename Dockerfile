@@ -3,7 +3,11 @@
 FROM rust
 COPY . feed-bouncer/
 WORKDIR /feed-bouncer
-RUN --mount=type=cache,target=/feed-bouncer/target cargo build -p feed-bouncer-server --release
+RUN \
+    --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/feed-bouncer/target \
+    cargo build -p feed-bouncer-server --release
 
 VOLUME [ "/storage" ]
 CMD target/release/feed-bouncer-server --storage-path /storage
