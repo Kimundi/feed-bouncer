@@ -39,12 +39,14 @@ pub enum FilterPattern {
 pub struct Filter {
     pattern: Vec<FilterPattern>,
     raw: String,
+    exact: bool,
 }
 
 impl Filter {
     pub fn new(raw: Option<String>) -> Self {
         let raw = raw.unwrap_or_default();
         let mut pattern = Vec::new();
+        let mut exact = false;
         for raw in raw.split(',') {
             let raw = raw.trim();
             let (raw, negated) = if let Some(raw) = raw.strip_prefix("!") {
@@ -52,7 +54,15 @@ impl Filter {
             } else {
                 (raw.trim(), false)
             };
-            if raw.is_empty() {
+            if raw == "=" {
+                exact = true;
+                continue;
+            }
+            if raw.is_empty()
+                || raw
+                    .chars()
+                    .any(|c| !"abcdefghijklmnopqrstuvwxyz_".contains(c))
+            {
                 continue;
             }
             if negated {
@@ -62,15 +72,21 @@ impl Filter {
             }
         }
 
-        Self { pattern, raw }
+        Self {
+            pattern,
+            raw,
+            exact,
+        }
     }
     pub fn matches(&self, feed: &Feed) -> bool {
+        let mut matches: usize = 0;
         for pattern in &self.pattern {
             match pattern {
                 FilterPattern::Has(tag) => {
                     if !feed.tags.contains(tag) {
                         return false;
                     }
+                    matches += 1;
                 }
                 FilterPattern::HasNot(tag) => {
                     if feed.tags.contains(tag) {
@@ -79,7 +95,8 @@ impl Filter {
                 }
             }
         }
-        true
+
+        (!self.exact) || (matches == feed.tags.len())
     }
     pub fn raw(&self) -> &str {
         &self.raw
