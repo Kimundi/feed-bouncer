@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{ops::Deref, sync::Arc};
 
 use feed_bouncer_database::{Database, Feed};
 use rocket::tokio::sync::RwLock;
@@ -33,13 +33,30 @@ impl<'a> Nav<'a> {
 pub type SyncDatabase = Arc<RwLock<Database>>;
 
 pub enum FilterPattern {
-    Has(String),
-    HasNot(String),
+    Has(Tag),
+    HasNot(Tag),
 }
 pub struct Filter {
     pattern: Vec<FilterPattern>,
     raw: String,
     exact: bool,
+}
+
+pub const VALID_TAG_CHARS: &str = "abcdefghijklmnopqrstuvwxyz_";
+
+#[derive(Debug, Clone)]
+pub struct Tag(String);
+impl Tag {
+    pub fn new(raw: &str) -> Option<Self> {
+        let raw = raw.trim();
+        if raw.is_empty() || raw.chars().any(|c| !VALID_TAG_CHARS.contains(c)) {
+            return None;
+        }
+        Some(Self(raw.to_owned()))
+    }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl Filter {
@@ -49,27 +66,19 @@ impl Filter {
         let mut exact = false;
         for raw in raw.split(',') {
             let raw = raw.trim();
-            let (raw, negated) = if let Some(raw) = raw.strip_prefix("!") {
-                (raw.trim(), true)
-            } else {
-                (raw.trim(), false)
-            };
             if raw == "=" {
                 exact = true;
                 continue;
             }
-            if raw.is_empty()
-                || raw
-                    .chars()
-                    .any(|c| !"abcdefghijklmnopqrstuvwxyz_".contains(c))
-            {
-                continue;
-            }
-            if negated {
-                pattern.push(FilterPattern::HasNot(raw.to_owned()));
-            } else {
-                pattern.push(FilterPattern::Has(raw.to_owned()));
-            }
+            let (raw, pat) = raw
+                .strip_prefix("!")
+                .map(|raw| (raw, FilterPattern::HasNot as fn(_) -> _))
+                .unwrap_or((raw, FilterPattern::Has));
+            let tag = match Tag::new(raw) {
+                Some(tag) => tag,
+                None => continue,
+            };
+            pattern.push(pat(tag));
         }
 
         Self {
@@ -83,13 +92,13 @@ impl Filter {
         for pattern in &self.pattern {
             match pattern {
                 FilterPattern::Has(tag) => {
-                    if !feed.tags.contains(tag) {
+                    if !feed.tags.contains(tag.as_str()) {
                         return false;
                     }
                     matches += 1;
                 }
                 FilterPattern::HasNot(tag) => {
-                    if feed.tags.contains(tag) {
+                    if feed.tags.contains(tag.as_str()) {
                         return false;
                     }
                 }

@@ -5,7 +5,7 @@ use rocket::form::Form;
 use rocket::{response::Redirect, State};
 use rocket_dyn_templates::Template;
 
-use crate::common::{Item, SyncDatabase};
+use crate::common::{Item, SyncDatabase, Tag};
 
 #[derive(serde::Serialize)]
 struct Context<'a> {
@@ -86,7 +86,14 @@ pub async fn feed_add_tag(
 ) -> Option<Redirect> {
     let mut db = db.write().await;
     let feed = db.get_mut(&feed_id)?;
-    let is_new = feed.tags.insert(new_tag.name.to_owned());
+    let mut is_new = false;
+
+    for name in new_tag.name.split(',') {
+        if let Some(name) = Tag::new(name) {
+            is_new |= feed.tags.insert(name.as_str().to_owned());
+        }
+    }
+
     if is_new {
         db.save();
     }
