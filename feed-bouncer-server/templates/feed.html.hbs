@@ -17,7 +17,7 @@
     <ul>
         {{#each tags}}
         <li>
-            {{this}}
+            {{this.name}} <a href="{{this.remove_link}}">-</a>
         </li>
         {{/each}}
         <li>

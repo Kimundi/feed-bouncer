@@ -8,9 +8,15 @@ use rocket_dyn_templates::Template;
 use crate::common::{Item, SyncDatabase, Tag};
 
 #[derive(serde::Serialize)]
+struct TagCtx<'a> {
+    name: &'a str,
+    remove_link: String,
+}
+
+#[derive(serde::Serialize)]
 struct Context<'a> {
     title: &'a str,
-    tags: Vec<&'a str>,
+    tags: Vec<TagCtx<'a>>,
     known_tags: Vec<&'a str>,
     items: Vec<Item<'a>>,
     feed_id: &'a str,
@@ -32,7 +38,13 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         ..
     } = feed;
 
-    let tags: Vec<_> = tags.iter().map(|s| s.as_str()).collect();
+    let tags: Vec<_> = tags
+        .iter()
+        .map(|s| TagCtx {
+            name: s.as_str(),
+            remove_link: String::new(),
+        })
+        .collect();
 
     let mut items = Vec::new();
     {
