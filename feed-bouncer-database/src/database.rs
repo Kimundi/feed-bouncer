@@ -1,7 +1,7 @@
 use std::{
     collections::{HashMap, HashSet},
     fmt::Debug,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use chrono::{DateTime, Utc};
@@ -175,18 +175,5 @@ fn update_or_warn<T: PartialEq + Debug>(dst: &mut Option<T>, value: Option<T>) {
             warn_if_not_equal(dst, &value);
         }
         None => *dst = Some(value),
-    }
-}
-
-fn safe_save_json(data: &impl serde::Serialize, path: &Path) {
-    let storage = serde_json::to_string_pretty(data).unwrap();
-    let new_path = path.with_extension("new.json");
-    std::fs::write(&new_path, storage).unwrap();
-    let new_size = std::fs::metadata(&new_path).unwrap().len();
-    let old_size = std::fs::metadata(path).map(|v| v.len()).unwrap_or(0);
-    if new_size >= old_size {
-        std::fs::rename(new_path, path).unwrap();
-    } else {
-        eprintln!("WARN: suspicious file size change when saving database, aborting the attempt")
     }
 }

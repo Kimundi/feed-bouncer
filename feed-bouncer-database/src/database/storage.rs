@@ -137,7 +137,7 @@ impl Storage {
         std::fs::create_dir_all(&feed_path).unwrap();
         for (feed_id, source) in self.iter() {
             let file_path = feed_path.join(feed_id).with_extension("json");
-            super::safe_save_json(source, &file_path);
+            crate::safe_save_json(source, &file_path, "database");
         }
     }
 
