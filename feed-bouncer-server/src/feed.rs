@@ -45,7 +45,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
             items.push(Item {
                 feed_name: feed.display_name(),
                 feed_id: &feed_id,
-                item_name: item.display_title().unwrap_or("???"),
+                item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
                 content_link,
             });
         }

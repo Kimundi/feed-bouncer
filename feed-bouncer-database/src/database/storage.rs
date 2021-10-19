@@ -45,15 +45,22 @@ impl FeedItem {
     pub fn sort<T, F: FnMut(&T) -> &Self>(items: &mut [T], mut f: F) {
         items.sort_by_cached_key(|k| f(k).publish_date_or_old());
     }
+    fn strip_prefix<'a>(mut t: &'a str, prefix: &str) -> &'a str {
+        t = t.trim();
+        t = t.strip_prefix(prefix).unwrap_or(t).trim();
+        t = t.strip_prefix("-").unwrap_or(t).trim();
+        t = t.strip_prefix(":").unwrap_or(t).trim();
+        t
+    }
     pub fn display_title_without_prefix(&self, prefix: &str) -> Option<&str> {
-        self.display_title().map(|t| {
-            t.trim()
-                .strip_prefix(prefix)
-                .unwrap_or(t)
-                .trim()
-                .strip_prefix("-")
-                .unwrap_or(t)
-                .trim()
+        self.display_title().map(|t| Self::strip_prefix(t, prefix))
+    }
+    pub fn display_title_without_prefixes(&self, feed: &Feed) -> Option<&str> {
+        self.display_title().map(|mut t| {
+            for a in feed.titles() {
+                t = Self::strip_prefix(t, a);
+            }
+            t
         })
     }
     pub fn content_link(&self) -> Option<&str> {
@@ -120,6 +127,12 @@ impl Feed {
     }
     pub fn remove_tag(&mut self, tag: &str) -> bool {
         self.tags.remove(tag)
+    }
+    pub fn titles(&self) -> impl Iterator<Item = &str> {
+        std::slice::from_ref(&self.name)
+            .iter()
+            .chain(self.title_aliases.iter())
+            .map(|s| &s[..])
     }
 }
 
