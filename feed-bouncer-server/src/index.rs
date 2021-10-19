@@ -19,6 +19,7 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
     {
         let mut feeds = db.get_items_ordered_by_time();
         feeds.reverse();
+        feeds.dedup_by(|a, b| a.2.content_link() == b.2.content_link());
         // let feeds = &feeds[0..(feeds.len().min(10))];
         for (feed_id, feed, item) in &feeds[..] {
             if !filter.matches(feed) {
