@@ -10,6 +10,7 @@ use crate::common::{Item, SyncDatabase, Tag};
 #[derive(serde::Serialize)]
 struct Context<'a> {
     title: &'a str,
+    title_aliases: Vec<&'a str>,
     tags: Vec<&'a str>,
     known_tags: Vec<&'a str>,
     items: Vec<Item<'a>>,
@@ -28,6 +29,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         feed_headers: _, // ignore for now, but could have useful extra metadata
         feed_url,
         feeds,
+        title_aliases,
         ..
     } = feed;
 
@@ -59,6 +61,8 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         .filter(|tag| !tags.contains(&tag))
         .collect();
 
+    let title_aliases: Vec<_> = title_aliases.iter().map(|s| &s[..]).collect();
+
     Some(Template::render(
         "feed",
         &Context {
@@ -68,6 +72,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
             title: feed.display_name(),
             feed_id: &feed_id,
             feed_url: feed_url.as_deref(),
+            title_aliases,
         },
     ))
 }
@@ -110,6 +115,44 @@ pub async fn feed_remove_tag(
     let feed = db.get_mut(&feed_id)?;
 
     if feed.remove_tag(tag) {
+        db.save_shrunk();
+    }
+
+    Some(Redirect::to(uri!(feed(feed_id))))
+}
+
+#[derive(FromForm)]
+pub struct NewTitle<'r> {
+    name: &'r str,
+}
+
+#[post("/feed/<feed_id>/alias/add", data = "<new_title>")]
+pub async fn feed_add_alias(
+    db: &State<SyncDatabase>,
+    feed_id: String,
+    new_title: Form<NewTitle<'_>>,
+) -> Option<Redirect> {
+    let mut db = db.write().await;
+    let feed = db.get_mut(&feed_id)?;
+    let is_new = feed.title_aliases.insert(new_title.name.to_owned());
+
+    if is_new {
+        db.save();
+    }
+
+    Some(Redirect::to(uri!(feed(feed_id))))
+}
+
+#[get("/feed/<feed_id>/alias/remove/<title>")]
+pub async fn feed_remove_alias(
+    db: &State<SyncDatabase>,
+    feed_id: String,
+    title: &str,
+) -> Option<Redirect> {
+    let mut db = db.write().await;
+    let feed = db.get_mut(&feed_id)?;
+
+    if feed.title_aliases.remove(title) {
         db.save_shrunk();
     }
 

@@ -76,6 +76,8 @@ pub struct Feed {
     pub parent: Option<FeedId>,
     #[serde(default)]
     tags: BTreeSet<String>,
+    #[serde(default)]
+    pub title_aliases: BTreeSet<String>,
     #[serde(skip)]
     _private: (),
 }
@@ -90,6 +92,7 @@ impl Feed {
             feeds: Vec::new(),
             parent: None,
             tags: BTreeSet::new(),
+            title_aliases: BTreeSet::new(),
             _private: (),
         }
     }

@@ -13,7 +13,23 @@
     <a href="{{feed_url}}">source</a>
     {{/if}}
     <br>
-    Tags <br>
+    Titles
+    <ul>
+        <li>
+            {{title}}
+        </li>
+        {{#each title_aliases}}
+        <li>
+            {{this}} (<a href="/feed/{{../feed_id}}/alias/remove/{{this}}">del</a>)
+        </li>
+        {{/each}}
+        <li>
+            <form action="/feed/{{feed_id}}/alias/add" , method="post">
+                <input type="text" id="name_input" name="name" autocomplete="off">
+            </form>
+        </li>
+    </ul>
+    Tags
     <ul>
         {{#each tags}}
         <li>
@@ -29,7 +45,7 @@
             </form>
         </li>
     </ul>
-    Feeds <br>
+    Feeds
     <ul>
         {{#each items}}
         <li>
