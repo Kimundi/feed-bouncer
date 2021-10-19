@@ -38,12 +38,7 @@ pub async fn feeds(db: &State<SyncDatabase>, filter: Option<String>) -> Template
         feeds.push(Feed {
             feed_name: feed.display_name(),
             feed_id: &feed_id,
-            tags: feed
-                .tags
-                .iter()
-                .map(|s| s.as_str())
-                .collect::<Vec<_>>()
-                .join(", "),
+            tags: feed.tags().collect::<Vec<_>>().join(", "),
         });
     }
 

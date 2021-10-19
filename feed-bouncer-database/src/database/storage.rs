@@ -75,7 +75,7 @@ pub struct Feed {
     pub feeds: Vec<FeedItem>,
     pub parent: Option<FeedId>,
     #[serde(default)]
-    pub tags: BTreeSet<String>,
+    tags: BTreeSet<String>,
     #[serde(skip)]
     _private: (),
 }
@@ -101,6 +101,22 @@ impl Feed {
             name: &self.name,
             feed_url: self.feed_url.as_deref(),
         }
+    }
+    pub fn tags(&self) -> impl Iterator<Item = &str> {
+        self.tags.iter().map(|s| &s[..])
+    }
+    pub fn extend_tags<'a>(&mut self, iter: impl IntoIterator<Item = &'a str>) -> bool {
+        let mut ret = false;
+        for s in iter {
+            ret |= self.tags.insert(s.to_owned());
+        }
+        ret
+    }
+    pub fn contains_tag(&self, tag: &str) -> bool {
+        self.tags.contains(tag)
+    }
+    pub fn remove_tag(&mut self, tag: &str) -> bool {
+        self.tags.remove(tag)
     }
 }
 
@@ -137,10 +153,17 @@ impl Storage {
         std::fs::create_dir_all(&feed_path).unwrap();
         for (feed_id, source) in self.iter() {
             let file_path = feed_path.join(feed_id).with_extension("json");
-            crate::safe_save_json(source, &file_path, "database");
+            crate::safe_save_json(source, &file_path, "database", false);
         }
     }
-
+    pub fn save_shrunk(&self, path: &Path) {
+        let feed_path = path.join("feeds");
+        std::fs::create_dir_all(&feed_path).unwrap();
+        for (feed_id, source) in self.iter() {
+            let file_path = feed_path.join(feed_id).with_extension("json");
+            crate::safe_save_json(source, &file_path, "database", true);
+        }
+    }
     pub fn write_to_cache(&self, lookup: &mut SourceLookup) {
         for (feed_id, source) in &self.sources {
             lookup.touch(feed_id, source.key());

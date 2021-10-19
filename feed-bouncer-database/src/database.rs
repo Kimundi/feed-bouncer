@@ -92,7 +92,11 @@ impl Database {
         self.storage.save(&self.storage_path);
     }
 
-    pub fn insert(&mut self, item: Feed) -> FeedId {
+    pub fn save_shrunk(&mut self) {
+        self.storage.save_shrunk(&self.storage_path);
+    }
+
+    pub fn insert(&mut self, mut item: Feed) -> FeedId {
         let feed_id = match self.lookup.check(item.key()) {
             Some(feed_id) => feed_id,
             None => {
@@ -112,10 +116,10 @@ impl Database {
         self.lookup.touch(&feed_id, item.key());
         let existing_entry = self.storage.get_or_insert(feed_id, &item);
 
-        update_or_warn(&mut existing_entry.feed_url, item.feed_url);
+        update_or_warn(&mut existing_entry.feed_url, item.feed_url.take());
         warn_if_not_equal(&existing_entry.name, &item.name);
-        update_or_warn(&mut existing_entry.opml, item.opml);
-        existing_entry.tags.extend(item.tags.clone());
+        update_or_warn(&mut existing_entry.opml, item.opml.take());
+        existing_entry.extend_tags(item.tags());
 
         ret
     }

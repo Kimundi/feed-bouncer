@@ -92,20 +92,20 @@ impl Filter {
         for pattern in &self.pattern {
             match pattern {
                 FilterPattern::Has(tag) => {
-                    if !feed.tags.contains(tag.as_str()) {
+                    if !feed.contains_tag(tag.as_str()) {
                         return false;
                     }
                     matches += 1;
                 }
                 FilterPattern::HasNot(tag) => {
-                    if feed.tags.contains(tag.as_str()) {
+                    if feed.contains_tag(tag.as_str()) {
                         return false;
                     }
                 }
             }
         }
 
-        (!self.exact) || (matches == feed.tags.len())
+        (!self.exact) || (matches == feed.tags().count())
     }
     pub fn raw(&self) -> &str {
         &self.raw

@@ -8,15 +8,9 @@ use rocket_dyn_templates::Template;
 use crate::common::{Item, SyncDatabase, Tag};
 
 #[derive(serde::Serialize)]
-struct TagCtx<'a> {
-    name: &'a str,
-    remove_link: String,
-}
-
-#[derive(serde::Serialize)]
 struct Context<'a> {
     title: &'a str,
-    tags: Vec<TagCtx<'a>>,
+    tags: Vec<&'a str>,
     known_tags: Vec<&'a str>,
     items: Vec<Item<'a>>,
     feed_id: &'a str,
@@ -34,17 +28,10 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         feed_headers: _, // ignore for now, but could have useful extra metadata
         feed_url,
         feeds,
-        tags,
         ..
     } = feed;
 
-    let tags: Vec<_> = tags
-        .iter()
-        .map(|s| TagCtx {
-            name: s.as_str(),
-            remove_link: String::new(),
-        })
-        .collect();
+    let tags: Vec<_> = feed.tags().collect();
 
     let mut items = Vec::new();
     {
@@ -65,11 +52,10 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
     let known_tags: Vec<_> = db
         .get_feeds()
         .into_iter()
-        .map(|feed| feed.1.tags.iter())
+        .map(|feed| feed.1.tags())
         .flatten()
         .collect::<BTreeSet<_>>()
         .into_iter()
-        .map(|s| s.as_str())
         .filter(|tag| !tags.contains(&tag))
         .collect();
 
@@ -103,12 +89,28 @@ pub async fn feed_add_tag(
 
     for name in new_tag.name.split(',') {
         if let Some(name) = Tag::new(name) {
-            is_new |= feed.tags.insert(name.as_str().to_owned());
+            is_new |= feed.extend_tags([name.as_str()]);
         }
     }
 
     if is_new {
         db.save();
+    }
+
+    Some(Redirect::to(uri!(feed(feed_id))))
+}
+
+#[get("/feed/<feed_id>/tag/remove/<tag>")]
+pub async fn feed_remove_tag(
+    db: &State<SyncDatabase>,
+    feed_id: String,
+    tag: &str,
+) -> Option<Redirect> {
+    let mut db = db.write().await;
+    let feed = db.get_mut(&feed_id)?;
+
+    if feed.remove_tag(tag) {
+        db.save_shrunk();
     }
 
     Some(Redirect::to(uri!(feed(feed_id))))

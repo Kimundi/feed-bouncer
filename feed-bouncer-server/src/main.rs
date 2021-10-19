@@ -41,6 +41,7 @@ async fn main() {
                 refresh::refresh,
                 feed::feed,
                 feed::feed_add_tag,
+                feed::feed_remove_tag,
                 feeds::feeds,
                 import::import,
                 import::import_rss,

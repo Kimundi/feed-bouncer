@@ -17,7 +17,7 @@
     <ul>
         {{#each tags}}
         <li>
-            {{this.name}} <a href="{{this.remove_link}}">-</a>
+            {{this}} (<a href="/feed/{{../feed_id}}/tag/remove/{{this}}">del</a>)
         </li>
         {{/each}}
         <li>

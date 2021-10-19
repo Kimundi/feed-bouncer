@@ -199,14 +199,14 @@ impl Database {
         if let Some(feed_ids) = self.lookup.check_rss(url) {
             for feed_id in feed_ids {
                 let source = self.storage.get_mut(feed_id).unwrap();
-                source.tags.extend(initial_tags.iter().cloned());
+                source.extend_tags(initial_tags.iter().map(|s| &s[..]));
             }
             return Ok(feed_ids.clone());
         }
         if let Some(channel) = download(url).await? {
             let mut source = Feed::new(channel.title().to_owned());
             source.feed_url = Some(url.to_owned());
-            source.tags.extend(initial_tags.iter().cloned());
+            source.extend_tags(initial_tags.iter().map(|s| &s[..]));
             let feed_id = self.insert(source);
 
             return Ok(<_>::into_iter([feed_id]).collect());

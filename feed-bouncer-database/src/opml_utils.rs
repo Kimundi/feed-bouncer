@@ -24,7 +24,7 @@ impl Database {
         source.feed_url = rss;
         source.opml = Some(outline);
         source.parent = parent.map(|v| v.to_owned());
-        source.tags.extend(initial_tags.iter().cloned());
+        source.extend_tags(initial_tags.iter().map(|s| &s[..]));
         let parent_feed_id = self.insert(source);
 
         for child in children {

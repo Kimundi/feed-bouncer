@@ -57,7 +57,7 @@ impl Database {
                             }
                         }
                     }
-                    safe_save_json(&import, &import_file, "import file");
+                    safe_save_json(&import, &import_file, "import file", true);
                 }
                 Err(e) => {
                     eprintln!("Error when importing: {}", e);
