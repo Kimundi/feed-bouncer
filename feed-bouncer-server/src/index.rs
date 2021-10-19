@@ -27,9 +27,7 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
             items.push(Item {
                 feed_name: feed.display_name(),
                 feed_id: &feed_id,
-                item_name: item
-                    .display_title_without_prefix(&feed.display_name())
-                    .unwrap_or("???"),
+                item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
                 content_link: item.content_link(),
             });
         }

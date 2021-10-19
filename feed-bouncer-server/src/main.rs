@@ -44,6 +44,7 @@ async fn main() {
                 feed::feed_remove_tag,
                 feed::feed_add_alias,
                 feed::feed_remove_alias,
+                feed::feed_set_display,
                 feeds::feeds,
                 import::import,
                 import::import_rss,

@@ -16,11 +16,12 @@
     Titles
     <ul>
         <li>
-            {{title}}
+            {{original_title}} (<a href="/feed/{{feed_id}}/display/set/{{original_title}}">show</a>)
         </li>
         {{#each title_aliases}}
         <li>
-            {{this}} (<a href="/feed/{{../feed_id}}/alias/remove/{{this}}">del</a>)
+            {{this}} (<a href="/feed/{{../feed_id}}/display/set/{{this}}">show</a>|<a
+                href="/feed/{{../feed_id}}/alias/remove/{{this}}">del</a>)
         </li>
         {{/each}}
         <li>

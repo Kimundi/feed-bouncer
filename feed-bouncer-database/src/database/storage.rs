@@ -52,9 +52,6 @@ impl FeedItem {
         t = t.strip_prefix(":").unwrap_or(t).trim();
         t
     }
-    pub fn display_title_without_prefix(&self, prefix: &str) -> Option<&str> {
-        self.display_title().map(|t| Self::strip_prefix(t, prefix))
-    }
     pub fn display_title_without_prefixes(&self, feed: &Feed) -> Option<&str> {
         self.display_title().map(|mut t| {
             for a in feed.titles() {
@@ -85,6 +82,8 @@ pub struct Feed {
     tags: BTreeSet<String>,
     #[serde(default)]
     pub title_aliases: BTreeSet<String>,
+    #[serde(default)]
+    display_name: Option<String>,
     #[serde(skip)]
     _private: (),
 }
@@ -100,10 +99,14 @@ impl Feed {
             parent: None,
             tags: BTreeSet::new(),
             title_aliases: BTreeSet::new(),
+            display_name: None,
             _private: (),
         }
     }
     pub fn display_name(&self) -> &str {
+        self.display_name.as_deref().unwrap_or(&self.name).trim()
+    }
+    pub fn original_display_name(&self) -> &str {
         self.name.trim()
     }
     pub fn key(&self) -> LookupKey<'_> {
@@ -133,6 +136,9 @@ impl Feed {
             .iter()
             .chain(self.title_aliases.iter())
             .map(|s| &s[..])
+    }
+    pub fn set_display_name(&mut self, name: String) {
+        self.display_name = Some(name);
     }
 }
 

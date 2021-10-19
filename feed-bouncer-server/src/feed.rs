@@ -10,6 +10,7 @@ use crate::common::{Item, SyncDatabase, Tag};
 #[derive(serde::Serialize)]
 struct Context<'a> {
     title: &'a str,
+    original_title: &'a str,
     title_aliases: Vec<&'a str>,
     tags: Vec<&'a str>,
     known_tags: Vec<&'a str>,
@@ -70,6 +71,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
             tags,
             known_tags,
             title: feed.display_name(),
+            original_title: feed.original_display_name(),
             feed_id: &feed_id,
             feed_url: feed_url.as_deref(),
             title_aliases,
@@ -155,6 +157,21 @@ pub async fn feed_remove_alias(
     if feed.title_aliases.remove(title) {
         db.save_shrunk();
     }
+
+    Some(Redirect::to(uri!(feed(feed_id))))
+}
+
+#[get("/feed/<feed_id>/display/set/<title>")]
+pub async fn feed_set_display(
+    db: &State<SyncDatabase>,
+    feed_id: String,
+    title: &str,
+) -> Option<Redirect> {
+    let mut db = db.write().await;
+    let feed = db.get_mut(&feed_id)?;
+
+    feed.set_display_name(title.to_owned());
+    db.save_shrunk();
 
     Some(Redirect::to(uri!(feed(feed_id))))
 }
