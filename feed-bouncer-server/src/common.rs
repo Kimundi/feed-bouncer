@@ -11,6 +11,14 @@ pub struct Item<'a> {
     pub content_link: Option<&'a str>,
 }
 
+#[derive(serde::Deserialize)]
+pub struct ItemOwned {
+    pub feed_name: String,
+    pub feed_id: String,
+    pub item_name: String,
+    pub content_link: Option<String>,
+}
+
 #[derive(serde::Serialize)]
 pub struct Nav<'a> {
     last_update: Option<String>,

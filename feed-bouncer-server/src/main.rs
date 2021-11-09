@@ -13,6 +13,7 @@ use crate::common::SyncDatabase;
 mod common;
 mod feed;
 mod feeds;
+mod handlebars_helper;
 mod import;
 mod index;
 mod refresh;
@@ -50,7 +51,7 @@ async fn main() {
                 import::import_rss,
             ],
         )
-        .attach(Template::fairing())
+        .attach(Template::custom(handlebars_helper::register))
         .manage(db);
 
     if let Err(e) = cfg.launch().await {
