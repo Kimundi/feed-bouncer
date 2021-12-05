@@ -1,7 +1,7 @@
 use rocket::State;
 use rocket_dyn_templates::Template;
 
-use crate::common::{Filter, Item, ItemsGroups, Nav, SyncDatabase};
+use crate::common::{Filter, ItemBuilder, ItemsGroups, Nav, SyncDatabase};
 
 #[derive(serde::Serialize)]
 struct Index<'a> {
@@ -12,7 +12,7 @@ struct Index<'a> {
 #[get("/?<filter>")]
 pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template {
     let filter = Filter::new(filter);
-    let mut items = Vec::new();
+    let mut items = ItemBuilder::new();
 
     let db = db.read().await;
 
@@ -25,16 +25,10 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
             if !filter.matches(feed) {
                 continue;
             }
-            items.push(Item {
-                feed_name: feed.display_name(),
-                feed_id: &feed_id,
-                item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
-                content_link: item.content_link(),
-                show_feed: true,
-            });
+            items.push(item, &feed_id, feed);
         }
     }
-    let items = ItemsGroups::new(items);
+    let items = items.into_groups();
 
     Template::render(
         "index",

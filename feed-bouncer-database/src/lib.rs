@@ -9,6 +9,7 @@ pub use database::storage::Feed;
 pub use database::storage::FeedHeader;
 pub use database::storage::FeedItem;
 pub use database::Database;
+pub use database::FeedId;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

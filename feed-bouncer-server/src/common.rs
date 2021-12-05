@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use feed_bouncer_database::{Database, Feed};
+use feed_bouncer_database::{Database, Feed, FeedId, FeedItem};
 use rocket::tokio::sync::RwLock;
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -134,5 +134,29 @@ impl Filter {
     }
     pub fn raw_opt(&self) -> Option<&str> {
         (!self.raw.is_empty()).then(|| &self.raw[..])
+    }
+}
+
+pub struct ItemBuilder<'a> {
+    items: Vec<Item<'a>>,
+}
+
+impl<'a> ItemBuilder<'a> {
+    pub fn new() -> Self {
+        Self { items: Vec::new() }
+    }
+
+    pub fn push(&mut self, item: &'a FeedItem, feed_id: &'a FeedId, feed: &'a Feed) {
+        self.items.push(Item {
+            feed_name: feed.display_name(),
+            feed_id: &feed_id,
+            item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
+            content_link: item.content_link(),
+            show_feed: true,
+        });
+    }
+
+    pub fn into_groups(self) -> ItemsGroups<'a> {
+        ItemsGroups::new(self.items)
     }
 }

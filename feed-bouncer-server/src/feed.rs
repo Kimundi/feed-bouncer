@@ -5,7 +5,7 @@ use rocket::form::Form;
 use rocket::{response::Redirect, State};
 use rocket_dyn_templates::Template;
 
-use crate::common::{Item, ItemsGroups, SyncDatabase, Tag};
+use crate::common::{ItemBuilder, ItemsGroups, SyncDatabase, Tag};
 
 #[derive(serde::Serialize)]
 struct Context<'a> {
@@ -36,24 +36,17 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
 
     let tags: Vec<_> = feed.tags().collect();
 
-    let mut items = Vec::new();
+    let mut items = ItemBuilder::new();
     {
         let mut feeds: Vec<&FeedItem> = feeds.iter().collect();
         FeedItem::sort(&mut feeds, |x| x);
         feeds.reverse();
         feeds.dedup_by(|a, b| a.content_link() == b.content_link());
         for item in feeds {
-            let content_link = item.content_link();
-            items.push(Item {
-                feed_name: feed.display_name(),
-                feed_id: &feed_id,
-                item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
-                content_link,
-                show_feed: false,
-            });
+            items.push(item, &feed_id, feed);
         }
     }
-    let items = ItemsGroups::new(items);
+    let items = items.into_groups();
 
     let known_tags: Vec<_> = db
         .get_feeds()
