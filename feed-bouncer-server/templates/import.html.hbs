@@ -1,15 +1,8 @@
-<html>
-
-<head>
-    <title>Feed Bouncer - Import</title>
-</head>
-
-<body>
-    <a href="/">Home</a> <br>
-    <form action="/import/rss" , method="post">
-        <input type="text" id="rss_url_input" name="rss_url">
-        <label for="rss_url_input">Import RSS Url</label><br>
-    </form>
-</body>
-
-</html>
+{{#*inline "page"}}
+<a href="/">Home</a> <br>
+<form action="/import/rss" , method="post">
+    <input type="text" id="rss_url_input" name="rss_url">
+    <label for="rss_url_input">Import RSS Url</label><br>
+</form>
+{{/inline}}
+{{~> layout~}}

@@ -1,29 +1,22 @@
-<html>
-
-<head>
-    <title>Feed Bouncer</title>
-</head>
-
-<body>
-    <a href="{{nav.home_link}}">Home</a>
-    -
-    <a href="{{nav.feeds_link}}">Feeds</a>
-    -
-    <a href="/refresh">Update</a>
-    -
-    <form style="display:inline;">
-        <input type="search" id="filter" name="filter" value="{{nav.filter}}">
-    </form>
-    -
-    Last update: {{nav.last_update}}
-    <br>
-    <ul>
-        {{#each feeds}}
-        <li>
-            <a href="/feed/{{this.feed_id}}">{{this.feed_name}}</a>: {{this.tags}}
-        </li>
-        {{/each}}
-    </ul>
-</body>
-
-</html>
+{{#*inline "page"}}
+<a href="{{nav.home_link}}">Home</a>
+-
+<a href="{{nav.feeds_link}}">Feeds</a>
+-
+<a href="/refresh">Update</a>
+-
+<form style="display:inline;">
+    <input type="search" id="filter" name="filter" value="{{nav.filter}}">
+</form>
+-
+Last update: {{nav.last_update}}
+<br>
+<ul>
+    {{#each feeds}}
+    <li>
+        <a href="/feed/{{this.feed_id}}">{{this.feed_name}}</a>: {{this.tags}}
+    </li>
+    {{/each}}
+</ul>
+{{/inline}}
+{{~> layout~}}

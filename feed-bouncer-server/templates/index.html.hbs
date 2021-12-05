@@ -1,64 +1,57 @@
-<html>
+{{#*inline "page"}}
+<a href="{{nav.home_link}}">Home</a>
+-
+<a href="{{nav.feeds_link}}">Feeds</a>
+-
+<form style="display:inline;">
+    <input type="search" id="filter" name="filter" value="{{nav.filter}}">
+</form>
+-
+<a href="/refresh">Update</a>
+-
+<a href="/import">Import</a>
+-
+Last update: {{nav.last_update}}
+<br>
+{{> items items }}
+<script>
+    // try to detect when we got re-visited in an open tab, and reload in that case
 
-<head>
-    <title>Feed Bouncer</title>
-</head>
+    // Set the name of the hidden property and the change event for visibility
+    var hidden, visibilityChange;
+    if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+        hidden = "hidden";
+        visibilityChange = "visibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+        hidden = "msHidden";
+        visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+        hidden = "webkitHidden";
+        visibilityChange = "webkitvisibilitychange";
+    }
 
-<body>
-    <a href="{{nav.home_link}}">Home</a>
-    -
-    <a href="{{nav.feeds_link}}">Feeds</a>
-    -
-    <form style="display:inline;">
-        <input type="search" id="filter" name="filter" value="{{nav.filter}}">
-    </form>
-    -
-    <a href="/refresh">Update</a>
-    -
-    <a href="/import">Import</a>
-    -
-    Last update: {{nav.last_update}}
-    <br>
-    {{> items items }}
-    <script>
-        // try to detect when we got re-visited in an open tab, and reload in that case
+    // 1h in milliseconds
+    const interval = 60 * 60 * 1000
+    var time = new Date().getTime();
 
-        // Set the name of the hidden property and the change event for visibility
-        var hidden, visibilityChange;
-        if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
-            hidden = "hidden";
-            visibilityChange = "visibilitychange";
-        } else if (typeof document.msHidden !== "undefined") {
-            hidden = "msHidden";
-            visibilityChange = "msvisibilitychange";
-        } else if (typeof document.webkitHidden !== "undefined") {
-            hidden = "webkitHidden";
-            visibilityChange = "webkitvisibilitychange";
-        }
-
-        // 1h in milliseconds
-        const interval = 60 * 60 * 1000
-        var time = new Date().getTime();
-
-        function handleVisibilityChange() {
-            if (!document[hidden]) {
-                let current_time = new Date().getTime();
-                let diff = current_time - time
-                if (diff >= interval) {
-                    time = current_time
-                    window.location.reload(true);
-                }
+    function handleVisibilityChange() {
+        if (!document[hidden]) {
+            let current_time = new Date().getTime();
+            let diff = current_time - time
+            if (diff >= interval) {
+                time = current_time
+                window.location.reload(true);
             }
         }
+    }
 
-        // Warn if the browser doesn't support addEventListener or the Page Visibility API
-        if (typeof document.addEventListener === "undefined" || hidden === undefined) {
-            console.log("Automatic reloads require the Page Visibility API.");
-        } else {
-            // Handle page visibility change
-            document.addEventListener(visibilityChange, handleVisibilityChange, false);
-        }
-    </script>
-</body>
-
-</html>
+    // Warn if the browser doesn't support addEventListener or the Page Visibility API
+    if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+        console.log("Automatic reloads require the Page Visibility API.");
+    } else {
+        // Handle page visibility change
+        document.addEventListener(visibilityChange, handleVisibilityChange, false);
+    }
+</script>
+{{/inline}}
+{{~> layout~}}

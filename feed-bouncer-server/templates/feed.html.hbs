@@ -1,53 +1,48 @@
-<html>
+{{#*inline "page"}}
 
-<head>
-    <title>Feed Bouncer - {{title}}</title>
-</head>
+<a href="/">Home</a>
+-
+{{title}}
+-
+{{#if feed_url}}
+<a href="{{feed_url}}">source</a>
+{{/if}}
+<br>
+Titles
+<ul>
+    <li>
+        {{original_title}} (<a href="/feed/{{feed_id}}/display/set/{{original_title}}">show</a>)
+    </li>
+    {{#each title_aliases}}
+    <li>
+        {{this}} (<a href="/feed/{{../feed_id}}/display/set/{{this}}">show</a>|<a
+            href="/feed/{{../feed_id}}/alias/remove/{{this}}">del</a>)
+    </li>
+    {{/each}}
+    <li>
+        <form action="/feed/{{feed_id}}/alias/add" , method="post">
+            <input type="text" id="name_input" name="name" autocomplete="off">
+        </form>
+    </li>
+</ul>
+Tags
+<ul>
+    {{#each tags}}
+    <li>
+        {{this}} (<a href="/feed/{{../feed_id}}/tag/remove/{{this}}">del</a>)
+    </li>
+    {{/each}}
+    <li>
+        <form action="/feed/{{feed_id}}/tag/add" , method="post">
+            <input type="text" id="name_input" name="name" list="known_tags" autocomplete="off">
+            <datalist id="known_tags">
+                {{#each known_tags}} <option value="{{this}}"> {{/each}}
+            </datalist>
+        </form>
+    </li>
+</ul>
+Feeds
+{{> items items }}
 
-<body>
-    <a href="/">Home</a>
-    -
-    {{title}}
-    -
-    {{#if feed_url}}
-    <a href="{{feed_url}}">source</a>
-    {{/if}}
-    <br>
-    Titles
-    <ul>
-        <li>
-            {{original_title}} (<a href="/feed/{{feed_id}}/display/set/{{original_title}}">show</a>)
-        </li>
-        {{#each title_aliases}}
-        <li>
-            {{this}} (<a href="/feed/{{../feed_id}}/display/set/{{this}}">show</a>|<a
-                href="/feed/{{../feed_id}}/alias/remove/{{this}}">del</a>)
-        </li>
-        {{/each}}
-        <li>
-            <form action="/feed/{{feed_id}}/alias/add" , method="post">
-                <input type="text" id="name_input" name="name" autocomplete="off">
-            </form>
-        </li>
-    </ul>
-    Tags
-    <ul>
-        {{#each tags}}
-        <li>
-            {{this}} (<a href="/feed/{{../feed_id}}/tag/remove/{{this}}">del</a>)
-        </li>
-        {{/each}}
-        <li>
-            <form action="/feed/{{feed_id}}/tag/add" , method="post">
-                <input type="text" id="name_input" name="name" list="known_tags" autocomplete="off">
-                <datalist id="known_tags">
-                    {{#each known_tags}} <option value="{{this}}"> {{/each}}
-                </datalist>
-            </form>
-        </li>
-    </ul>
-    Feeds
-    {{> items items }}
-</body>
-
-</html>
+{{/inline}}
+{{~> layout~}}
