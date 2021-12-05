@@ -1,15 +1,16 @@
 use std::sync::Arc;
 
+use chrono::{Datelike, IsoWeek};
 use feed_bouncer_database::{Database, Feed, FeedId, FeedItem};
 use rocket::tokio::sync::RwLock;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ItemBase<S> {
-    pub feed_name: S,
-    pub feed_id: S,
-    pub item_name: S,
-    pub content_link: Option<S>,
-    pub show_feed: bool,
+    feed_name: S,
+    feed_id: S,
+    item_name: S,
+    content_link: Option<S>,
+    show_feed: bool,
 }
 
 pub type Item<'a> = ItemBase<&'a str>;
@@ -18,19 +19,13 @@ pub type ItemOwned = ItemBase<String>;
 #[derive(serde::Serialize)]
 pub struct ItemsGroup<'a> {
     items: Vec<Item<'a>>,
+    year: i32,
+    week: u32,
 }
 
 #[derive(serde::Serialize)]
 pub struct ItemsGroups<'a> {
     item_groups: Vec<ItemsGroup<'a>>,
-}
-
-impl<'a> ItemsGroups<'a> {
-    pub fn new(items: Vec<Item<'a>>) -> Self {
-        Self {
-            item_groups: vec![ItemsGroup { items }],
-        }
-    }
 }
 
 #[derive(serde::Serialize)]
@@ -138,16 +133,36 @@ impl Filter {
 }
 
 pub struct ItemBuilder<'a> {
-    items: Vec<Item<'a>>,
+    items: Vec<ItemsGroup<'a>>,
+    year: i32,
+    week: Option<IsoWeek>,
 }
 
 impl<'a> ItemBuilder<'a> {
     pub fn new() -> Self {
-        Self { items: Vec::new() }
+        Self {
+            items: Vec::new(),
+            year: 0,
+            week: None,
+        }
     }
 
     pub fn push(&mut self, item: &'a FeedItem, feed_id: &'a FeedId, feed: &'a Feed) {
-        self.items.push(Item {
+        let date = item.publish_date_or_old();
+        let week = date.iso_week();
+        let year = date.year();
+
+        if Some(week) != self.week || year != self.year {
+            self.items.push(ItemsGroup {
+                items: Vec::new(),
+                year,
+                week: week.week(),
+            });
+            self.year = year;
+            self.week = Some(week);
+        }
+
+        self.items.last_mut().unwrap().items.push(Item {
             feed_name: feed.display_name(),
             feed_id: &feed_id,
             item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
@@ -157,6 +172,8 @@ impl<'a> ItemBuilder<'a> {
     }
 
     pub fn into_groups(self) -> ItemsGroups<'a> {
-        ItemsGroups::new(self.items)
+        ItemsGroups {
+            item_groups: self.items,
+        }
     }
 }

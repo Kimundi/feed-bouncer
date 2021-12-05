@@ -440,6 +440,7 @@ dependencies = [
 name = "feed-bouncer-server"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "clap",
  "feed-bouncer-database",
  "rocket",
