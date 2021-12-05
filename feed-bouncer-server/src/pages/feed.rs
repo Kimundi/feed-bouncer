@@ -36,7 +36,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
 
     let tags: Vec<_> = feed.tags().collect();
 
-    let mut items = ItemBuilder::new();
+    let mut items = ItemBuilder::new(false);
     {
         let mut feeds: Vec<&FeedItem> = feeds.iter().collect();
         FeedItem::sort(&mut feeds, |x| x);

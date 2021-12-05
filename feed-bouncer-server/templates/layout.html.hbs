@@ -3,6 +3,64 @@
 
 <head>
     <title>Feed Bouncer - {{title}}</title>
+    <style>
+        body {
+            background-color: rgb(70, 70, 70);
+            font-family: sans-serif;
+            color: white;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        a {
+            color: white;
+            text-decoration: none;
+        }
+
+        a.a_no_style {
+            color: white;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .items {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item_group_heading {
+            width: 100%;
+            border: 5px solid rgb(156, 223, 192);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .item {
+            display: table;
+            width: 100%;
+            border: 1px;
+            box-sizing: border-box;
+        }
+
+        .item_feed {
+            width: 30%;
+            display: table-cell;
+            box-sizing: border-box;
+        }
+
+        .item_content {
+            width: 70%;
+            display: table-cell;
+            box-sizing: border-box;
+        }
+
+        .item_link {
+            padding: 5px;
+        }
+    </style>
 </head>
 
 <body>

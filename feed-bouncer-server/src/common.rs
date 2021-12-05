@@ -136,14 +136,16 @@ pub struct ItemBuilder<'a> {
     items: Vec<ItemsGroup<'a>>,
     year: i32,
     week: Option<IsoWeek>,
+    show_feed: bool,
 }
 
 impl<'a> ItemBuilder<'a> {
-    pub fn new() -> Self {
+    pub fn new(show_feed: bool) -> Self {
         Self {
             items: Vec::new(),
             year: 0,
             week: None,
+            show_feed,
         }
     }
 
@@ -167,7 +169,7 @@ impl<'a> ItemBuilder<'a> {
             feed_id: &feed_id,
             item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
             content_link: item.content_link(),
-            show_feed: true,
+            show_feed: self.show_feed,
         });
     }
 

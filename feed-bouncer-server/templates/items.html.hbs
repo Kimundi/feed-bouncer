@@ -1,19 +1,33 @@
-<ul>
+<div class="items">
     {{#each this.item_groups}}
-    Week {{this.week}} - {{this.year}}
+    <div class="item_group_heading">
+        Week {{this.week}} - {{this.year}}
+    </div>
     {{#each this.items}}
-    <li>
+    <div class="item">
         {{#if this.show_feed}}
-        [<a href="/feed/{{this.feed_id}}">{{this.feed_name}}</a>]
+        <div class="item_feed">
+            <a href="/feed/{{this.feed_id}}">
+                <div class="item_link">
+                    {{this.feed_name}}
+                </div>
+            </a>
+        </div>
         {{/if}}
+
         {{#if this.content_link}}
-        <a href="{{this.content_link}}">
-            {{this.item_name}}
-        </a>
-        {{else}}
-        {{this.item_name}}
+        <div class="item_content">
+            <a href="{{this.content_link}}">
+                {{/if}}
+                <div class="item_link">
+                    {{this.item_name}}
+                </div>
+                {{#if this.content_link}}
+            </a>
+        </div>
         {{/if}}
-    </li>
+
+    </div>
     {{/each}}
     {{/each}}
-</ul>
+</div>

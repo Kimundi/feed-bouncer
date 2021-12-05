@@ -12,7 +12,7 @@ struct Index<'a> {
 #[get("/?<filter>")]
 pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template {
     let filter = Filter::new(filter);
-    let mut items = ItemBuilder::new();
+    let mut items = ItemBuilder::new(true);
 
     let db = db.read().await;
 
