@@ -41,8 +41,8 @@ impl<'a> Nav<'a> {
         Self {
             last_update: db.last_feed_update().map(|v| v.to_rfc3339()),
             filter: filter.raw(),
-            home_link: uri!(crate::index::index(filter.raw_opt())).to_string(),
-            feeds_link: uri!(crate::feeds::feeds(filter.raw_opt())).to_string(),
+            home_link: uri!(crate::pages::index::index(filter.raw_opt())).to_string(),
+            feeds_link: uri!(crate::pages::feeds::feeds(filter.raw_opt())).to_string(),
         }
     }
 }

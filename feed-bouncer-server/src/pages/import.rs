@@ -25,9 +25,11 @@ pub async fn import_rss(db: &State<SyncDatabase>, new_rss: Form<NewRss<'_>>) -> 
     // TODO: initial tags
     if let Ok(feed_ids) = db.import_from_rss(new_rss.rss_url, &[]).await {
         if let Some(feed_id) = feed_ids.iter().next() {
-            return Some(Redirect::to(uri!(crate::feed::feed(feed_id))));
+            return Some(Redirect::to(uri!(crate::pages::feed::feed(feed_id))));
         }
     }
 
-    Some(Redirect::to(uri!(crate::index::index(None::<String>))))
+    Some(Redirect::to(uri!(crate::pages::index::index(
+        None::<String>
+    ))))
 }
