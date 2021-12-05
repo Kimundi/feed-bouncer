@@ -43,7 +43,7 @@ pub async fn feeds(db: &State<SyncDatabase>, filter: Option<String>) -> Template
     }
 
     Template::render(
-        "feeds",
+        "pages/feeds",
         &Feeds {
             feeds,
             nav: Nav::new(&db, &filter),

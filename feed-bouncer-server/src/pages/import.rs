@@ -9,7 +9,7 @@ struct Context {}
 
 #[get("/import")]
 pub async fn import(_db: &State<SyncDatabase>) -> Option<Template> {
-    Some(Template::render("import", &Context {}))
+    Some(Template::render("pages/import", &Context {}))
 }
 
 #[derive(FromForm)]

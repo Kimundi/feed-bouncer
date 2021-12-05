@@ -11,12 +11,8 @@ use rocket_dyn_templates::Template;
 use crate::common::SyncDatabase;
 
 mod common;
-mod feed;
-mod feeds;
 mod handlebars_helper;
-mod import;
-mod index;
-mod refresh;
+mod pages;
 
 #[derive(Clap)]
 #[clap(setting = AppSettings::ColoredHelp)]
@@ -32,23 +28,23 @@ async fn main() {
     let mut db = Database::init(opts.storage_path);
     db.import().await;
     let db: SyncDatabase = Arc::new(RwLock::new(db));
-    refresh::start_periodic_refresh(&db);
+    pages::refresh::start_periodic_refresh(&db);
 
     let cfg = rocket::build()
         .mount(
             "/",
             routes![
-                index::index,
-                refresh::refresh,
-                feed::feed,
-                feed::feed_add_tag,
-                feed::feed_remove_tag,
-                feed::feed_add_alias,
-                feed::feed_remove_alias,
-                feed::feed_set_display,
-                feeds::feeds,
-                import::import,
-                import::import_rss,
+                pages::index::index,
+                pages::refresh::refresh,
+                pages::feed::feed,
+                pages::feed::feed_add_tag,
+                pages::feed::feed_remove_tag,
+                pages::feed::feed_add_alias,
+                pages::feed::feed_remove_alias,
+                pages::feed::feed_set_display,
+                pages::feeds::feeds,
+                pages::import::import,
+                pages::import::import_rss,
             ],
         )
         .attach(Template::custom(handlebars_helper::register))

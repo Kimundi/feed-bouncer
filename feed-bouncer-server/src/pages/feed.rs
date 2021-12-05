@@ -61,7 +61,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
     let title_aliases: Vec<_> = title_aliases.iter().map(|s| &s[..]).collect();
 
     Some(Template::render(
-        "feed",
+        "pages/feed",
         &Context {
             items,
             tags,

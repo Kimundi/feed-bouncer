@@ -31,7 +31,7 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
     let items = items.into_groups();
 
     Template::render(
-        "index",
+        "pages/index",
         &Index {
             items,
             nav: Nav::new(&db, &filter),
