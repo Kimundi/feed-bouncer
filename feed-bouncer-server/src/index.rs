@@ -1,11 +1,11 @@
 use rocket::State;
 use rocket_dyn_templates::Template;
 
-use crate::common::{Filter, Item, Nav, SyncDatabase};
+use crate::common::{Filter, Item, ItemsGroups, Nav, SyncDatabase};
 
 #[derive(serde::Serialize)]
 struct Index<'a> {
-    items: Vec<Item<'a>>,
+    items: ItemsGroups<'a>,
     nav: Nav<'a>,
 }
 
@@ -30,9 +30,11 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
                 feed_id: &feed_id,
                 item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
                 content_link: item.content_link(),
+                show_feed: true,
             });
         }
     }
+    let items = ItemsGroups::new(items);
 
     Template::render(
         "index",

@@ -19,20 +19,7 @@
     -
     Last update: {{nav.last_update}}
     <br>
-    <ul>
-        {{#each items}}
-        <li>
-            [<a href="/feed/{{this.feed_id}}">{{this.feed_name}}</a>]
-            {{#if this.content_link}}
-            <a href="{{this.content_link}}">
-                {{this.item_name}}
-            </a>
-            {{else}}
-            {{this.item_name}}
-            {{/if}}
-        </li>
-        {{/each}}
-    </ul>
+    {{> items items }}
     <script>
         // try to detect when we got re-visited in an open tab, and reload in that case
 

@@ -1,0 +1,19 @@
+<ul>
+    {{#each this.item_groups}}
+    Group
+    {{#each this.items}}
+    <li>
+        {{#if this.show_feed}}
+        [<a href="/feed/{{this.feed_id}}">{{this.feed_name}}</a>]
+        {{/if}}
+        {{#if this.content_link}}
+        <a href="{{this.content_link}}">
+            {{this.item_name}}
+        </a>
+        {{else}}
+        {{this.item_name}}
+        {{/if}}
+    </li>
+    {{/each}}
+    {{/each}}
+</ul>

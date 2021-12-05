@@ -3,20 +3,34 @@ use std::sync::Arc;
 use feed_bouncer_database::{Database, Feed};
 use rocket::tokio::sync::RwLock;
 
-#[derive(serde::Serialize)]
-pub struct Item<'a> {
-    pub feed_name: &'a str,
-    pub feed_id: &'a str,
-    pub item_name: &'a str,
-    pub content_link: Option<&'a str>,
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct ItemBase<S> {
+    pub feed_name: S,
+    pub feed_id: S,
+    pub item_name: S,
+    pub content_link: Option<S>,
+    pub show_feed: bool,
 }
 
-#[derive(serde::Deserialize)]
-pub struct ItemOwned {
-    pub feed_name: String,
-    pub feed_id: String,
-    pub item_name: String,
-    pub content_link: Option<String>,
+pub type Item<'a> = ItemBase<&'a str>;
+pub type ItemOwned = ItemBase<String>;
+
+#[derive(serde::Serialize)]
+pub struct ItemsGroup<'a> {
+    items: Vec<Item<'a>>,
+}
+
+#[derive(serde::Serialize)]
+pub struct ItemsGroups<'a> {
+    item_groups: Vec<ItemsGroup<'a>>,
+}
+
+impl<'a> ItemsGroups<'a> {
+    pub fn new(items: Vec<Item<'a>>) -> Self {
+        Self {
+            item_groups: vec![ItemsGroup { items }],
+        }
+    }
 }
 
 #[derive(serde::Serialize)]

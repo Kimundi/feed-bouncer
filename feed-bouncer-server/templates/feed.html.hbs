@@ -47,19 +47,7 @@
         </li>
     </ul>
     Feeds
-    <ul>
-        {{#each items}}
-        <li>
-            {{#if this.content_link}}
-            <a href="{{this.content_link}}">
-                {{this.item_name}}
-            </a>
-            {{else}}
-            {{this.item_name}}
-            {{/if}}
-        </li>
-        {{/each}}
-    </ul>
+    {{> items items }}
 </body>
 
 </html>
