@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use chrono::{Datelike, IsoWeek};
+use chrono::{Datelike, IsoWeek, NaiveDate, Weekday};
 use feed_bouncer_database::{Database, Feed, FeedId, FeedItem};
 use rocket::tokio::sync::RwLock;
 
@@ -19,8 +19,9 @@ pub type ItemOwned = ItemBase<String>;
 #[derive(serde::Serialize)]
 pub struct ItemsGroup<'a> {
     items: Vec<Item<'a>>,
-    year: i32,
     week: u32,
+    start: NaiveDate,
+    end: NaiveDate,
 }
 
 #[derive(serde::Serialize)]
@@ -132,6 +133,12 @@ impl Filter {
     }
 }
 
+fn week_bounds(year: i32, week: u32) -> (NaiveDate, NaiveDate) {
+    let mon = NaiveDate::from_isoywd(year, week, Weekday::Mon);
+    let sun = NaiveDate::from_isoywd(year, week, Weekday::Sun);
+    (mon, sun)
+}
+
 pub struct ItemBuilder<'a> {
     items: Vec<ItemsGroup<'a>>,
     year: i32,
@@ -150,15 +157,17 @@ impl<'a> ItemBuilder<'a> {
     }
 
     pub fn push(&mut self, item: &'a FeedItem, feed_id: &'a FeedId, feed: &'a Feed) {
-        let date = item.publish_date_or_old();
+        let date = item.publish_date_or_old().naive_utc();
         let week = date.iso_week();
         let year = date.year();
 
         if Some(week) != self.week || year != self.year {
+            let (start, end) = week_bounds(week.year(), week.week());
             self.items.push(ItemsGroup {
                 items: Vec::new(),
-                year,
                 week: week.week(),
+                start,
+                end,
             });
             self.year = year;
             self.week = Some(week);
