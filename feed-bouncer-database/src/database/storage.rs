@@ -39,8 +39,7 @@ impl FeedItem {
         }
     }
     pub fn publish_date_or_old(&self) -> DateTime<FixedOffset> {
-        self.publish_date()
-            .unwrap_or_else(|| chrono::DateTime::parse_from_rfc3339("1990-01-01T00:00:00").unwrap())
+        self.publish_date().unwrap_or_else(old_date)
     }
     pub fn sort<T, F: FnMut(&T) -> &Self>(items: &mut [T], mut f: F) {
         items.sort_by_cached_key(|k| f(k).publish_date_or_old());
@@ -208,4 +207,13 @@ impl Storage {
     pub fn get_mut(&mut self, feed_id: &FeedId) -> Option<&mut Feed> {
         self.sources.get_mut(feed_id)
     }
+}
+
+fn old_date() -> DateTime<FixedOffset> {
+    chrono::DateTime::parse_from_rfc3339("1996-12-19T16:39:57-08:00").unwrap()
+}
+
+#[test]
+fn test_old_date() {
+    old_date();
 }
