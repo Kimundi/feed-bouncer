@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     collections::{BTreeMap, BTreeSet},
     path::Path,
 };
@@ -28,10 +29,29 @@ impl FeedItem {
     }
     pub fn publish_date(&self) -> Option<DateTime<FixedOffset>> {
         match self {
-            FeedItem::Rss(item) => item
-                .pub_date
-                .as_ref()
-                .and_then(|v| DateTime::parse_from_rfc2822(v).ok()),
+            FeedItem::Rss(item) => item.pub_date.as_ref().and_then(|v| {
+                // NB: Some feeds have a non-rfc2822 conform date format where
+                // they write out the day fully. We fix this here.
+                let mut v = Cow::Borrowed(v);
+                for day in [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                ] {
+                    if v.contains(day) {
+                        v = Cow::Owned(v.replace(day, &day[..3]));
+                    }
+                }
+                let res = DateTime::parse_from_rfc2822(&v);
+                if res.is_err() {
+                    println!("Could not parse date {}", v);
+                }
+                res.ok()
+            }),
             FeedItem::FeedRs(entry) => entry.published.as_ref().map(|v| {
                 // TODO: This is ugly
                 DateTime::parse_from_rfc2822(&v.to_rfc2822()).unwrap()
