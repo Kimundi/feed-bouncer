@@ -180,8 +180,12 @@ impl Storage {
                 .expect("file does not have unicode name")
                 .to_owned();
             let file = std::fs::read_to_string(&feed_file)?;
-            let feed: Feed =
-                serde_json::from_str(&file).expect("file could be read, but not parsed");
+            // TODO: Remove at a later point
+            let file = file.replace(r#""period": "HOURLY""#, r#""period": "Hourly""#);
+            let feed: Feed = serde_json::from_str(&file).expect(&format!(
+                "file {:?} could be read, but not parsed",
+                feed_file
+            ));
             sources.insert(id, feed);
         }
         Ok(Self { sources })

@@ -1,21 +1,11 @@
 use std::collections::BTreeMap;
 
 use rss::{
-    extension::{atom, dublincore, itunes, syndication},
+    extension::{atom, dublincore, itunes, syndication, ExtensionMap},
     Category, Channel, Cloud, Image, TextInput,
 };
 
-use crate::feeds::FeedConvert;
-
-pub type ExtensionMap = BTreeMap<String, BTreeMap<String, Vec<Extension>>>;
-
-#[derive(serde::Serialize, serde::Deserialize, Debug, Default, Clone, PartialEq)]
-pub struct Extension {
-    pub name: String,
-    pub value: Option<String>,
-    pub attrs: BTreeMap<String, String>,
-    pub children: BTreeMap<String, Vec<Extension>>,
-}
+pub use rss::Item;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub struct ChannelHeader {
@@ -123,111 +113,14 @@ impl ChannelHeader {
                 text_input,
                 skip_hours,
                 skip_days,
-
-                extensions: extensions.convert(),
+                extensions,
                 atom_ext,
                 itunes_ext,
                 dublin_core_ext,
                 syndication_ext,
                 namespaces: namespaces.into_iter().collect(),
             },
-            items.convert(),
+            items,
         )
-    }
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
-pub struct Item {
-    /// The title of the item.
-    pub title: Option<String>,
-    /// The URL of the item.
-    pub link: Option<String>,
-    /// The item synopsis.
-    pub description: Option<String>,
-    /// The email address of author of the item.
-    pub author: Option<String>,
-    /// The categories the item belongs to.
-    pub categories: Vec<Category>,
-    /// The URL for the comments page of the item.
-    pub comments: Option<String>,
-    /// The description of a media object that is attached to the item.
-    pub enclosure: Option<rss::Enclosure>,
-    /// A unique identifier for the item.
-    pub guid: Option<rss::Guid>,
-    /// The date the item was published as an RFC 2822 timestamp.
-    pub pub_date: Option<String>,
-    /// The RSS channel the item came from.
-    pub source: Option<rss::Source>,
-    /// The HTML contents of the item.
-    pub content: Option<String>,
-    /// The extensions for the item.
-    pub extensions: ExtensionMap,
-    /// The Atom extension for the channel.
-    pub atom_ext: Option<atom::AtomExtension>,
-    /// The iTunes extension for the item.
-    pub itunes_ext: Option<itunes::ITunesItemExtension>,
-    /// The Dublin Core extension for the item.
-    pub dublin_core_ext: Option<dublincore::DublinCoreExtension>,
-}
-
-impl FeedConvert for rss::extension::Extension {
-    type Output = Extension;
-
-    fn convert(self) -> Self::Output {
-        let rss::extension::Extension {
-            name,
-            value,
-            attrs,
-            children,
-        } = self;
-
-        Extension {
-            name,
-            value,
-            attrs: attrs.convert(),
-            children: children.convert(),
-        }
-    }
-}
-
-impl FeedConvert for rss::Item {
-    type Output = Item;
-
-    fn convert(self) -> Self::Output {
-        let rss::Item {
-            title,
-            link,
-            description,
-            author,
-            categories,
-            comments,
-            enclosure,
-            guid,
-            pub_date,
-            source,
-            content,
-            extensions,
-            atom_ext,
-            itunes_ext,
-            dublin_core_ext,
-        } = self;
-
-        Item {
-            title,
-            link,
-            description,
-            author,
-            categories,
-            comments,
-            enclosure,
-            guid,
-            pub_date,
-            source,
-            content,
-            extensions: extensions.convert(),
-            atom_ext,
-            itunes_ext,
-            dublin_core_ext,
-        }
     }
 }
