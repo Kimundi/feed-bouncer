@@ -3,7 +3,7 @@ extern crate rocket;
 
 use std::{path::PathBuf, sync::Arc};
 
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use feed_bouncer_database::Database;
 use rocket::tokio::sync::RwLock;
 use rocket_dyn_templates::Template;
@@ -14,8 +14,7 @@ mod common;
 mod handlebars_helper;
 mod pages;
 
-#[derive(Clap)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser)]
 struct Opts {
     #[clap(short, long)]
     storage_path: Option<PathBuf>,
