@@ -48,7 +48,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         .filter(|tag| !tags.contains(&tag))
         .collect();
 
-    let title_aliases: Vec<_> = feed.title_aliases.iter().map(|s| &s[..]).collect();
+    let title_aliases: Vec<_> = feed.title_aliases().iter().map(|s| &s[..]).collect();
 
     Some(Template::render(
         "pages/feed",
@@ -122,7 +122,7 @@ pub async fn feed_add_alias(
 ) -> Option<Redirect> {
     let mut db = db.write().await;
     let feed = db.get_mut(&feed_id)?;
-    let is_new = feed.title_aliases.insert(new_title.name.to_owned());
+    let is_new = feed.title_aliases_mut().insert(new_title.name.to_owned());
 
     if is_new {
         db.save();
@@ -140,7 +140,7 @@ pub async fn feed_remove_alias(
     let mut db = db.write().await;
     let feed = db.get_mut(&feed_id)?;
 
-    if feed.title_aliases.remove(title) {
+    if feed.title_aliases_mut().remove(title) {
         db.save_shrunk();
     }
 

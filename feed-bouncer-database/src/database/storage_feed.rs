@@ -26,11 +26,11 @@ pub struct Feed {
     #[serde(default)]
     feeds_counter: usize,
 
-    pub parent: Option<FeedId>,
+    parent: Option<FeedId>,
     #[serde(default)]
     tags: BTreeSet<String>,
     #[serde(default)]
-    pub title_aliases: BTreeSet<String>,
+    title_aliases: BTreeSet<String>,
     #[serde(default)]
     display_name: Option<String>,
     #[serde(skip)]
@@ -148,5 +148,14 @@ impl Feed {
     }
     pub fn opml_mut(&mut self) -> &mut Option<opml::Outline> {
         &mut self.opml
+    }
+    pub fn set_parent(&mut self, parent: Option<String>) {
+        self.parent = parent;
+    }
+    pub fn title_aliases(&self) -> &BTreeSet<String> {
+        &self.title_aliases
+    }
+    pub fn title_aliases_mut(&mut self) -> &mut BTreeSet<String> {
+        &mut self.title_aliases
     }
 }

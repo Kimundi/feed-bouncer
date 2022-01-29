@@ -26,7 +26,7 @@ impl Database {
         let mut source = Feed::new(name);
         *source.feed_url_mut() = rss;
         *source.opml_mut() = Some(outline);
-        source.parent = parent.map(|v| v.to_owned());
+        source.set_parent(parent.map(|v| v.to_owned()));
         source.extend_tags(initial_tags.iter().map(|s| &s[..]));
         let parent_feed_id = self.insert(source);
 
