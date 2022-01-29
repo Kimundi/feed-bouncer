@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use chrono::{Datelike, IsoWeek, NaiveDate, Weekday};
-use feed_bouncer_database::{Database, Feed, FeedId, FeedItem};
+use feed_bouncer_database::{Database, Feed, FeedId, FeedItemMeta};
 use rocket::tokio::sync::RwLock;
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -157,7 +157,7 @@ impl<'a> ItemBuilder<'a> {
         }
     }
 
-    pub fn push_sorted(&mut self, item: &'a FeedItem, feed_id: &'a FeedId, feed: &'a Feed) {
+    pub fn push_sorted(&mut self, item: &'a FeedItemMeta, feed_id: &'a FeedId, feed: &'a Feed) {
         let date = item.publish_date_or_old().naive_utc();
         let week = date.iso_week();
         let year = date.year();

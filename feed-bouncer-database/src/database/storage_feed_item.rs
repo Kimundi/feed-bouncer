@@ -10,28 +10,8 @@ pub enum FeedItem {
     FeedRs(crate::feeds::feed_rs::Entry),
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Clone, Debug, PartialEq)]
-pub struct FeedItemMeta {
-    id: usize,
-    pub item: FeedItem,
-}
-impl FeedItemMeta {
-    pub fn new(id: usize, item: FeedItem) -> Self {
-        Self { id, item }
-    }
-    pub fn id(&self) -> usize {
-        self.id
-    }
-}
-
 impl FeedItem {
-    pub fn display_title(&self) -> Option<&str> {
-        match self {
-            FeedItem::Rss(item) => item.title.as_deref().map(str::trim),
-            FeedItem::FeedRs(entry) => entry.title.as_ref().map(|v| v.content.trim()),
-        }
-    }
-    pub fn publish_date(&self) -> Option<DateTime<FixedOffset>> {
+    fn publish_date(&self) -> Option<DateTime<FixedOffset>> {
         match self {
             FeedItem::Rss(item) => item.pub_date.as_ref().and_then(|v| {
                 // NB: Some feeds have a non-rfc2822 conform date format where
@@ -62,12 +42,42 @@ impl FeedItem {
             }),
         }
     }
-    pub fn publish_date_or_old(&self) -> DateTime<FixedOffset> {
+    fn publish_date_or_old(&self) -> DateTime<FixedOffset> {
         self.publish_date().unwrap_or_else(old_date)
     }
     pub fn sort<T, F: FnMut(&T) -> &Self>(items: &mut [T], mut f: F) {
         items.sort_by_cached_key(|k| f(k).publish_date_or_old());
     }
+    pub(crate) fn display_title(&self) -> Option<&str> {
+        match self {
+            FeedItem::Rss(item) => item.title.as_deref().map(str::trim),
+            FeedItem::FeedRs(entry) => entry.title.as_ref().map(|v| v.content.trim()),
+        }
+    }
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Clone, Debug, PartialEq)]
+pub struct FeedItemMeta {
+    id: usize,
+    pub item: FeedItem,
+}
+
+impl FeedItemMeta {
+    pub fn new(id: usize, item: FeedItem) -> Self {
+        Self { id, item }
+    }
+    pub fn id(&self) -> usize {
+        self.id
+    }
+
+    pub fn publish_date_or_old(&self) -> DateTime<FixedOffset> {
+        self.item.publish_date_or_old()
+    }
+
+    pub fn display_title(&self) -> Option<&str> {
+        self.item.display_title()
+    }
+
     fn strip_prefix<'a>(mut t: &'a str, prefix: &str) -> &'a str {
         t = t.trim();
         t = t.strip_prefix(prefix).unwrap_or(t).trim();
@@ -84,7 +94,7 @@ impl FeedItem {
         })
     }
     pub fn content_link(&self) -> Option<&str> {
-        match self {
+        match &self.item {
             FeedItem::Rss(item) => item.link.as_deref(),
             FeedItem::FeedRs(entry) => entry.links.first().map(|link| &link.href[..]),
         }

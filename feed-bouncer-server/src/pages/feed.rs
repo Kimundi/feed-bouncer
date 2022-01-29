@@ -31,9 +31,9 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         let mut feeds: Vec<&FeedItemMeta> = feed.feeds().iter().collect();
         FeedItem::sort(&mut feeds, |x| &x.item);
         feeds.reverse();
-        feeds.dedup_by(|a, b| a.item.content_link() == b.item.content_link());
+        feeds.dedup_by(|a, b| a.content_link() == b.content_link());
         for item in feeds {
-            items.push_sorted(&item.item, &feed_id, feed);
+            items.push_sorted(&item, &feed_id, feed);
         }
     }
     let items = items.into_groups();

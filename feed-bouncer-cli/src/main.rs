@@ -36,9 +36,7 @@ async fn main() -> Result<(), DbError> {
             println!(
                 "  [{}] {}",
                 feed.display_name(),
-                item.item
-                    .display_title_without_prefixes(&feed)
-                    .unwrap_or("???")
+                item.display_title_without_prefixes(&feed).unwrap_or("???")
             );
         }
     }
