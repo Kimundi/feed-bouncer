@@ -19,13 +19,13 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
     {
         let mut feeds = db.get_items_ordered_by_time();
         feeds.reverse();
-        feeds.dedup_by(|a, b| a.2.content_link() == b.2.content_link());
+        feeds.dedup_by(|a, b| a.2.item.content_link() == b.2.item.content_link());
         // let feeds = &feeds[0..(feeds.len().min(10))];
         for (feed_id, feed, item) in &feeds[..] {
             if !filter.matches(feed) {
                 continue;
             }
-            items.push(item, &feed_id, feed);
+            items.push_sorted(&item.item, &feed_id, feed);
         }
     }
     let items = items.into_groups();

@@ -6,9 +6,18 @@ use std::{
 
 use chrono::{DateTime, Utc};
 
-use crate::database::storage::{Feed, FeedItem, Storage};
+use crate::database::{
+    storage::Storage,
+    storage_feed::Feed,
+    storage_feed_item::{FeedItem, FeedItemMeta},
+    user_data::UserDataStorage,
+};
 
 pub mod storage;
+pub mod storage_feed;
+pub mod storage_feed_header;
+pub mod storage_feed_item;
+pub mod user_data;
 
 pub type FeedId = String;
 
@@ -62,6 +71,7 @@ impl SourceLookup {
 
 pub struct Database {
     pub(crate) storage: Storage,
+    pub(crate) user_data_storage: UserDataStorage,
     pub(crate) storage_path: PathBuf,
     pub(crate) lookup: SourceLookup,
     pub(crate) last_feed_update: Option<DateTime<Utc>>,
@@ -72,9 +82,11 @@ impl Database {
     pub fn init(storage_path: Option<PathBuf>) -> Self {
         let storage_path: PathBuf = storage_path.unwrap_or_else(|| "./storage".into());
         let storage = Storage::open_or_default(&storage_path);
+        let user_data_storage = UserDataStorage::open_or_default(&storage_path);
 
         let mut ret = Self {
             storage,
+            user_data_storage,
             storage_path,
             lookup: SourceLookup::default(),
             last_feed_update: None,
@@ -90,10 +102,12 @@ impl Database {
 
     pub fn save(&mut self) {
         self.storage.save(&self.storage_path);
+        self.user_data_storage.save(&self.storage_path);
     }
 
     pub fn save_shrunk(&mut self) {
         self.storage.save_shrunk(&self.storage_path);
+        self.user_data_storage.save(&self.storage_path);
     }
 
     pub fn insert(&mut self, mut item: Feed) -> FeedId {
@@ -124,15 +138,15 @@ impl Database {
         ret
     }
 
-    pub fn get_items_ordered_by_time(&self) -> Vec<(&FeedId, &Feed, &FeedItem)> {
+    pub fn get_items_ordered_by_time(&self) -> Vec<(&FeedId, &Feed, &FeedItemMeta)> {
         let mut items = Vec::new();
         for (feed_id, feed) in self.storage.iter() {
-            for item in &feed.feeds {
+            for item in feed.feeds() {
                 items.push((feed_id, feed, item));
             }
         }
 
-        FeedItem::sort(&mut items, |v| &v.2);
+        FeedItem::sort(&mut items, |v| &v.2.item);
 
         items
     }

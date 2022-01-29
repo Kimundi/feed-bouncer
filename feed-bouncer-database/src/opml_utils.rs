@@ -2,7 +2,10 @@ use std::path::Path;
 
 use opml::OPML;
 
-use crate::database::{storage::Feed, Database, FeedId};
+use crate::{
+    database::{Database, FeedId},
+    Feed,
+};
 
 fn open(path: &Path) -> OPML {
     let opml = std::fs::read_to_string(path).unwrap();

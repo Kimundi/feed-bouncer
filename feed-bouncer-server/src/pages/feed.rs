@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use feed_bouncer_database::{Feed, FeedItem};
+use feed_bouncer_database::{FeedItem, FeedItemMeta};
 use rocket::form::Form;
 use rocket::{response::Redirect, State};
 use rocket_dyn_templates::Template;
@@ -23,27 +23,17 @@ struct Context<'a> {
 pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template> {
     let db = db.read().await;
     let feed = db.get(&feed_id)?;
-    let Feed {
-        name: _,
-        parent: _,
-        opml: _,
-        feed_headers: _, // ignore for now, but could have useful extra metadata
-        feed_url,
-        feeds,
-        title_aliases,
-        ..
-    } = feed;
 
     let tags: Vec<_> = feed.tags().collect();
 
     let mut items = ItemBuilder::new(false);
     {
-        let mut feeds: Vec<&FeedItem> = feeds.iter().collect();
-        FeedItem::sort(&mut feeds, |x| x);
+        let mut feeds: Vec<&FeedItemMeta> = feed.feeds().iter().collect();
+        FeedItem::sort(&mut feeds, |x| &x.item);
         feeds.reverse();
-        feeds.dedup_by(|a, b| a.content_link() == b.content_link());
+        feeds.dedup_by(|a, b| a.item.content_link() == b.item.content_link());
         for item in feeds {
-            items.push(item, &feed_id, feed);
+            items.push_sorted(&item.item, &feed_id, feed);
         }
     }
     let items = items.into_groups();
@@ -58,7 +48,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
         .filter(|tag| !tags.contains(&tag))
         .collect();
 
-    let title_aliases: Vec<_> = title_aliases.iter().map(|s| &s[..]).collect();
+    let title_aliases: Vec<_> = feed.title_aliases.iter().map(|s| &s[..]).collect();
 
     Some(Template::render(
         "pages/feed",
@@ -69,7 +59,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
             title: feed.display_name(),
             original_title: feed.original_display_name(),
             feed_id: &feed_id,
-            feed_url: feed_url.as_deref(),
+            feed_url: feed.feed_url.as_deref(),
             title_aliases,
         },
     ))

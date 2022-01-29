@@ -7,11 +7,9 @@ use ::feed_rs::model::Feed as FeedRs;
 use ::rss::Channel;
 
 use crate::{
-    database::{
-        storage::{Feed, FeedHeader, FeedItem},
-        Database, FeedId,
-    },
+    database::{storage_feed_header::FeedHeader, storage_feed_item::FeedItem, Database, FeedId},
     feeds::rss::ChannelHeader,
+    Feed,
 };
 
 pub mod feed_rs;
@@ -139,8 +137,8 @@ impl Database {
             };
 
             let mut existing = HashSet::new();
-            for item in &source.feeds {
-                let key = item_key(&item);
+            for item in source.feeds() {
+                let key = item_key(&item.item);
                 existing.insert(key);
             }
 
@@ -170,12 +168,14 @@ impl Database {
             if let Some(feed) = self.get_mut(&feed_id) {
                 // println!("Commit feed of [{}]...", &feed.display_name());
                 for feed_header in feed_headers {
-                    if !feed.feed_headers.contains(&feed_header) {
-                        feed.feed_headers.push(feed_header);
+                    if !feed.contains_feed_header(&feed_header) {
+                        feed.push_feed_header(feed_header);
                     }
                 }
-                feed.feeds.extend(feed_items);
-                FeedItem::sort(&mut feed.feeds, |v| v);
+                for feed_item in feed_items {
+                    feed.push_feed(feed_item);
+                }
+                FeedItem::sort(&mut feed.feeds_mut(), |v| &v.item);
             }
         }
         self.last_feed_update = Some(chrono::Utc::now());

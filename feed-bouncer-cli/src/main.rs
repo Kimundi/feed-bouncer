@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use feed_bouncer_database::Database;
 use feed_bouncer_database::Error as DbError;
 
-#[derive(Clap)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
 struct Opts {
     /// Print recent updates
     #[clap(short, long)]
@@ -36,7 +36,9 @@ async fn main() -> Result<(), DbError> {
             println!(
                 "  [{}] {}",
                 feed.display_name(),
-                item.display_title_without_prefixes(&feed).unwrap_or("???")
+                item.item
+                    .display_title_without_prefixes(&feed)
+                    .unwrap_or("???")
             );
         }
     }

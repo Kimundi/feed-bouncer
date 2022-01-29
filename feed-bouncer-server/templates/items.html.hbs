@@ -15,8 +15,8 @@
         </div>
         {{/if}}
 
-        {{#if this.content_link}}
         <div class="item_content">
+            {{#if this.content_link}}
             <a href="{{this.content_link}}">
                 {{/if}}
                 <div class="item_link">
@@ -24,8 +24,12 @@
                 </div>
                 {{#if this.content_link}}
             </a>
+            {{/if}}
         </div>
-        {{/if}}
+
+        <div class="item_read">
+            <a href="{{this.mark_read_link}}">read</a>
+        </div>
 
     </div>
     {{/each}}

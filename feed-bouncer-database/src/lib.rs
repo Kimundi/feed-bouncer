@@ -5,9 +5,11 @@ mod opml_utils;
 
 use std::path::Path;
 
-pub use database::storage::Feed;
-pub use database::storage::FeedHeader;
-pub use database::storage::FeedItem;
+pub use database::storage_feed::Feed;
+pub use database::storage_feed_header::FeedHeader;
+pub use database::storage_feed_header::FeedHeaderMeta;
+pub use database::storage_feed_item::FeedItem;
+pub use database::storage_feed_item::FeedItemMeta;
 pub use database::Database;
 pub use database::FeedId;
 
