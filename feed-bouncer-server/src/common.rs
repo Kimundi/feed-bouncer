@@ -11,7 +11,7 @@ pub struct ItemBase<S> {
     item_name: S,
     content_link: Option<S>,
     show_feed: bool,
-    mark_read_link: S,
+    item_id: usize,
 }
 
 pub type Item<'a> = ItemBase<&'a str>;
@@ -179,7 +179,7 @@ impl<'a> ItemBuilder<'a> {
             feed_id: &feed_id,
             item_name: item.display_title_without_prefixes(&feed).unwrap_or("???"),
             content_link: item.content_link(),
-            mark_read_link: item.mark_read_link(),
+            item_id: item.id(),
             show_feed: self.show_feed,
         });
     }

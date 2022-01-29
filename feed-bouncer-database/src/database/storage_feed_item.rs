@@ -99,10 +99,6 @@ impl FeedItemMeta {
             FeedItem::FeedRs(entry) => entry.links.first().map(|link| &link.href[..]),
         }
     }
-
-    pub fn mark_read_link(&self) -> &str {
-        "TODO"
-    }
 }
 
 fn old_date() -> DateTime<FixedOffset> {

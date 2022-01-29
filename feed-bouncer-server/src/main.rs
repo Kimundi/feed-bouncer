@@ -13,6 +13,7 @@ use crate::common::SyncDatabase;
 mod common;
 mod handlebars_helper;
 mod pages;
+mod triggers;
 
 #[derive(Parser)]
 struct Opts {
@@ -27,14 +28,13 @@ async fn main() {
     let mut db = Database::init(opts.storage_path);
     db.import().await;
     let db: SyncDatabase = Arc::new(RwLock::new(db));
-    pages::refresh::start_periodic_refresh(&db);
+    triggers::update::start_periodic_update(&db);
 
     let cfg = rocket::build()
         .mount(
             "/",
             routes![
                 pages::index::index,
-                pages::refresh::refresh,
                 pages::feed::feed,
                 pages::feed::feed_add_tag,
                 pages::feed::feed_remove_tag,
@@ -44,6 +44,8 @@ async fn main() {
                 pages::feeds::feeds,
                 pages::import::import,
                 pages::import::import_rss,
+                triggers::update::update,
+                triggers::mark_read::mark_read,
             ],
         )
         .attach(Template::custom(handlebars_helper::register))

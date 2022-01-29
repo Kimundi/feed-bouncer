@@ -1,16 +1,17 @@
-use std::time::Duration;
-
 use rocket::{response::Redirect, State};
 
-use crate::SyncDatabase;
+use crate::{common::SyncDatabase, triggers::GetHeaders};
+use std::time::Duration;
 
-#[get("/refresh")]
-pub async fn refresh(db: &State<SyncDatabase>) -> Redirect {
-    start_refresh(db);
-    Redirect::to(uri!(crate::pages::index::index(None::<String>)))
+use super::redirect_back;
+
+#[get("/update")]
+pub async fn update(db: &State<SyncDatabase>, referer: GetHeaders) -> Redirect {
+    start_update(db);
+    redirect_back(referer)
 }
 
-pub fn start_refresh(db: &SyncDatabase) {
+pub fn start_update(db: &SyncDatabase) {
     let db: SyncDatabase = db.clone();
 
     rocket::tokio::spawn(async move {
@@ -30,11 +31,11 @@ pub fn start_refresh(db: &SyncDatabase) {
     });
 }
 
-pub fn start_periodic_refresh(db: &SyncDatabase) {
+pub fn start_periodic_update(db: &SyncDatabase) {
     let db: SyncDatabase = db.clone();
     rocket::tokio::spawn(async move {
         loop {
-            start_refresh(&db);
+            start_update(&db);
             rocket::tokio::time::sleep(Duration::from_secs(60 * 60)).await;
         }
     });
