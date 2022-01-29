@@ -59,7 +59,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
             title: feed.display_name(),
             original_title: feed.original_display_name(),
             feed_id: &feed_id,
-            feed_url: feed.feed_url.as_deref(),
+            feed_url: feed.feed_url(),
             title_aliases,
         },
     ))

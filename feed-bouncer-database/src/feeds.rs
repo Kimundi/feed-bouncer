@@ -131,8 +131,8 @@ impl Database {
                 &source.display_name()
             );
             */
-            let rss_feed = match &source.feed_url {
-                Some(rss) => rss,
+            let rss_feed = match source.feed_url() {
+                Some(rss) => rss.to_owned(),
                 None => continue,
             };
 
@@ -205,7 +205,7 @@ impl Database {
         }
         if let Some(channel) = download(url).await? {
             let mut source = Feed::new(channel.title().to_owned());
-            source.feed_url = Some(url.to_owned());
+            *source.feed_url_mut() = Some(url.to_owned());
             source.extend_tags(initial_tags.iter().map(|s| &s[..]));
             let feed_id = self.insert(source);
 

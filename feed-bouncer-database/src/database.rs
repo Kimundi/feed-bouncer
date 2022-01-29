@@ -116,8 +116,8 @@ impl Database {
             None => {
                 use sha2::Digest;
                 let mut hash = sha2::Sha256::new();
-                hash.update(&item.name);
-                if let Some(rss) = &item.feed_url {
+                hash.update(item.name());
+                if let Some(rss) = item.feed_url() {
                     hash.update(rss);
                 }
                 let hash = hash.finalize();
@@ -130,9 +130,9 @@ impl Database {
         self.lookup.touch(&feed_id, item.key());
         let existing_entry = self.storage.get_or_insert(feed_id, &item);
 
-        update_or_warn(&mut existing_entry.feed_url, item.feed_url.take());
-        warn_if_not_equal(&existing_entry.name, &item.name);
-        update_or_warn(&mut existing_entry.opml, item.opml.take());
+        update_or_warn(existing_entry.feed_url_mut(), item.feed_url_mut().take());
+        warn_if_not_equal(existing_entry.name(), item.name());
+        update_or_warn(existing_entry.opml_mut(), item.opml_mut().take());
         existing_entry.extend_tags(item.tags());
 
         ret
@@ -177,7 +177,7 @@ impl Database {
     }
 }
 
-fn warn_if_not_equal<T: PartialEq + Debug>(dst: &T, value: &T) {
+fn warn_if_not_equal<T: PartialEq + Debug + ?Sized>(dst: &T, value: &T) {
     if dst != value {
         eprintln!("WARN: Mismatching value {:?} != {:?}", dst, value);
     }

@@ -8,9 +8,9 @@ use crate::database::{
 
 #[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
 pub struct Feed {
-    pub name: String,
-    pub feed_url: Option<String>,
-    pub opml: Option<opml::Outline>,
+    name: String,
+    feed_url: Option<String>,
+    opml: Option<opml::Outline>,
 
     #[serde(default)]
     feed_headers: Vec<FeedHeader>,
@@ -132,5 +132,21 @@ impl Feed {
         self.feeds_v2
             .push(FeedItemMeta::new(self.feeds_counter, item));
         self.feeds_counter += 1;
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    pub fn feed_url(&self) -> Option<&str> {
+        self.feed_url.as_deref()
+    }
+    pub fn feed_url_mut(&mut self) -> &mut Option<String> {
+        &mut self.feed_url
+    }
+    pub fn opml(&self) -> Option<&opml::Outline> {
+        self.opml.as_ref()
+    }
+    pub fn opml_mut(&mut self) -> &mut Option<opml::Outline> {
+        &mut self.opml
     }
 }

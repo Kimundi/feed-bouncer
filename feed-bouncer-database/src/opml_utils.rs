@@ -24,8 +24,8 @@ impl Database {
         let rss = outline.xml_url.as_deref().map(|s| s.to_owned());
         let children: Vec<_> = outline.outlines.drain(..).collect();
         let mut source = Feed::new(name);
-        source.feed_url = rss;
-        source.opml = Some(outline);
+        *source.feed_url_mut() = rss;
+        *source.opml_mut() = Some(outline);
         source.parent = parent.map(|v| v.to_owned());
         source.extend_tags(initial_tags.iter().map(|s| &s[..]));
         let parent_feed_id = self.insert(source);
