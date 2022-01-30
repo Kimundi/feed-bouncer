@@ -39,51 +39,38 @@
             box-sizing: border-box;
         }
 
-        .item {
-            display: table;
+        .item_table {
+            table-layout: fixed;
             width: 100%;
-            border: 1px;
-            box-sizing: border-box;
         }
 
-        .item_feed {
+        .item_td_feed {
             width: 30%;
-            display: table-cell;
-            box-sizing: border-box;
         }
 
-        .item_content {
+        .item_td_item {
             width: 60%;
-            display: table-cell;
-            box-sizing: border-box;
         }
 
-        .item_read {
+        .item_td_read {
             width: 10%;
-            display: table-cell;
-            box-sizing: border-box;
             text-align: right;
-            padding: 5px;
             font-size: small;
         }
 
-        .item_read>a {
+        .item_td_read>a {
             color: rgb(139, 139, 139);
         }
 
-        .item_read_hidden {
+        .my_hidden {
             visibility: hidden;
         }
 
-        .item_read_hidden>a {
-            visibility: hidden;
+        .link_read {
+            color: rgb(139, 139, 139);
         }
 
-        .item_link {
-            padding: 5px;
-        }
-
-        .item_link_read {
+        .link_read>a {
             color: rgb(139, 139, 139);
         }
     </style>

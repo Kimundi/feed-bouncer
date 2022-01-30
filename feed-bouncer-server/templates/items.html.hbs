@@ -3,35 +3,30 @@
     <div class="item_group_heading">
         Week {{this.week}} ({{this.start}} &mdash; {{this.end}})
     </div>
-    {{#each this.items}}
-    <div class="item">
-        {{#if this.show_feed}}
-        <div class="item_feed">
-            <a href="/feed/{{this.feed_id}}">
-                <div class="item_link">
+    <table class="item_table">
+        {{#each this.items}}
+        <tr>
+            {{#if this.show_feed}}
+            <td class="item_td_feed">
+                <a href="/feed/{{this.feed_id}}">
                     {{this.feed_name}}
-                </div>
-            </a>
-        </div>
-        {{/if}}
-
-        <div class="item_content">
-            {{#if this.content_link}}
-            <a href="{{this.content_link}}">
-                {{/if}}
-                <div class="item_link {{#if this.is_read}}item_link_read{{/if}}">
-                    {{this.item_name}}
-                </div>
-                {{#if this.content_link}}
-            </a>
+                </a>
+            </td>
             {{/if}}
-        </div>
-
-        <div class="item_read {{#if this.is_read}}item_read_hidden{{/if}}">
-            <a href="/mark_read/{{this.feed_id}}/{{this.item_id}}">read</a>
-        </div>
-
-    </div>
-    {{/each}}
+            <td class="item_td_item {{#if this.is_read}}link_read{{/if}}">
+                {{#if this.content_link}}
+                <a href="{{this.content_link}}">
+                    {{/if}}
+                    {{this.item_name}}
+                    {{#if this.content_link}}
+                </a>
+                {{/if}}
+            </td>
+            <td class="item_td_read {{#if this.is_read}}my_hidden{{/if}}">
+                <a href="/mark_read/{{this.feed_id}}/{{this.item_id}}">read</a>
+            </td>
+        </tr>
+        {{/each}}
+    </table>
     {{/each}}
 </div>
