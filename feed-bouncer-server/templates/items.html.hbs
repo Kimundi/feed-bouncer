@@ -19,7 +19,7 @@
             {{#if this.content_link}}
             <a href="{{this.content_link}}">
                 {{/if}}
-                <div class={{#if this.is_read}}"item_link_read"{{else}}"item_link"{{/if}}>
+                <div class="item_link {{#if this.is_read}}item_link_read{{/if}}">
                     {{this.item_name}}
                 </div>
                 {{#if this.content_link}}
@@ -27,7 +27,7 @@
             {{/if}}
         </div>
 
-        <div class={{#if this.is_read}}"item_read_hidden"{{else}}"item_read"{{/if}}>
+        <div class="item_read {{#if this.is_read}}item_read_hidden{{/if}}">
             <a href="/mark_read/{{this.feed_id}}/{{this.item_id}}">read</a>
         </div>
 
