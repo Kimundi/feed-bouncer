@@ -40,4 +40,10 @@ impl UserDataStorage {
             .read_ids
             .insert(item_id);
     }
+    pub fn is_read(&self, feed_id: &FeedId, item_id: usize) -> bool {
+        self.storage
+            .get(feed_id)
+            .map(|v| v.read_ids.contains(&item_id))
+            .unwrap_or(false)
+    }
 }

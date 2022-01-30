@@ -183,6 +183,9 @@ impl Database {
     pub fn mark_read(&mut self, feed_id: &FeedId, item_id: usize) {
         self.user_data_storage.mark_read(feed_id, item_id)
     }
+    pub fn is_read(&self, feed_id: &FeedId, item_id: usize) -> bool {
+        self.user_data_storage.is_read(feed_id, item_id)
+    }
 }
 
 fn warn_if_not_equal<T: PartialEq + Debug + ?Sized>(dst: &T, value: &T) {

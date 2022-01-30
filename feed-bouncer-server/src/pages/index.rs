@@ -25,7 +25,7 @@ pub async fn index(db: &State<SyncDatabase>, filter: Option<String>) -> Template
             if !filter.matches(feed) {
                 continue;
             }
-            items.push_sorted(&item, &feed_id, feed);
+            items.push_sorted(&item, &feed_id, feed, db.is_read(&feed_id, item.id()));
         }
     }
     let items = items.into_groups();

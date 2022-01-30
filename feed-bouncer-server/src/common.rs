@@ -12,6 +12,7 @@ pub struct ItemBase<S> {
     content_link: Option<S>,
     show_feed: bool,
     item_id: usize,
+    is_read: bool,
 }
 
 pub type Item<'a> = ItemBase<&'a str>;
@@ -157,7 +158,13 @@ impl<'a> ItemBuilder<'a> {
         }
     }
 
-    pub fn push_sorted(&mut self, item: &'a FeedItemMeta, feed_id: &'a FeedId, feed: &'a Feed) {
+    pub fn push_sorted(
+        &mut self,
+        item: &'a FeedItemMeta,
+        feed_id: &'a FeedId,
+        feed: &'a Feed,
+        is_read: bool,
+    ) {
         let date = item.publish_date_or_old().naive_utc();
         let week = date.iso_week();
         let year = date.year();
@@ -181,6 +188,7 @@ impl<'a> ItemBuilder<'a> {
             content_link: item.content_link(),
             item_id: item.id(),
             show_feed: self.show_feed,
+            is_read: is_read,
         });
     }
 

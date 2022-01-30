@@ -19,9 +19,15 @@
             {{#if this.content_link}}
             <a href="{{this.content_link}}">
                 {{/if}}
+                {{#if this.is_read}}
+                <div class="item_link_read">
+                    {{this.item_name}}
+                </div>
+                {{else}}
                 <div class="item_link">
                     {{this.item_name}}
                 </div>
+                {{/if}}
                 {{#if this.content_link}}
             </a>
             {{/if}}
