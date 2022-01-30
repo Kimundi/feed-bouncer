@@ -122,13 +122,13 @@ impl Feed {
         self.feed_headers_counter += 1;
     }
 
-    pub fn feeds(&self) -> &[FeedItemMeta] {
+    pub fn items(&self) -> &[FeedItemMeta] {
         &self.feeds_v2
     }
-    pub fn feeds_mut(&mut self) -> &mut [FeedItemMeta] {
+    pub fn items_mut(&mut self) -> &mut [FeedItemMeta] {
         &mut self.feeds_v2
     }
-    pub fn push_feed(&mut self, item: FeedItem) {
+    pub fn push_item(&mut self, item: FeedItem) {
         self.feeds_v2
             .push(FeedItemMeta::new(self.feeds_counter, item));
         self.feeds_counter += 1;

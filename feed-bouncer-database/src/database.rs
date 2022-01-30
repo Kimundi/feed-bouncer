@@ -110,6 +110,10 @@ impl Database {
         self.user_data_storage.save(&self.storage_path);
     }
 
+    pub fn save_user_data(&mut self) {
+        self.user_data_storage.save(&self.storage_path);
+    }
+
     pub fn insert(&mut self, mut item: Feed) -> FeedId {
         let feed_id = match self.lookup.check(item.key()) {
             Some(feed_id) => feed_id,
@@ -141,7 +145,7 @@ impl Database {
     pub fn get_items_ordered_by_time(&self) -> Vec<(&FeedId, &Feed, &FeedItemMeta)> {
         let mut items = Vec::new();
         for (feed_id, feed) in self.storage.iter() {
-            for item in feed.feeds() {
+            for item in feed.items() {
                 items.push((feed_id, feed, item));
             }
         }
@@ -174,6 +178,10 @@ impl Database {
     pub fn set_update_seq_no(&mut self, v: u64) {
         assert!(self.update_seq_no < v);
         self.update_seq_no = v;
+    }
+
+    pub fn mark_read(&mut self, feed_id: &FeedId, item_id: usize) {
+        self.user_data_storage.mark_read(feed_id, item_id)
     }
 }
 

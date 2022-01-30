@@ -1,13 +1,18 @@
-use std::{collections::BTreeMap, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    path::Path,
+};
 
 use crate::FeedId;
 
-#[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
-pub struct FeedUserData {}
+#[derive(serde::Deserialize, serde::Serialize, Clone, Debug, Default)]
+pub struct FeedUserData {
+    read_ids: BTreeSet<usize>,
+}
 
 #[derive(Default)]
 pub struct UserDataStorage {
-    user_data: BTreeMap<FeedId, FeedUserData>,
+    storage: BTreeMap<FeedId, FeedUserData>,
 }
 
 impl UserDataStorage {
@@ -21,14 +26,18 @@ impl UserDataStorage {
 
     pub fn open_or_default(storage_path: &Path) -> Self {
         Self {
-            user_data: Self::open_user_data(storage_path).unwrap_or_default(),
+            storage: Self::open_user_data(storage_path).unwrap_or_default(),
         }
     }
-    fn save_internal(&self, path: &Path, allow_shrink: bool) {
-        let user_data_path = path.join("user_data.json");
-        crate::safe_save_json(&self.user_data, &user_data_path, "user_data", allow_shrink);
-    }
     pub fn save(&self, path: &Path) {
-        self.save_internal(path, true)
+        let user_data_path = path.join("user_data.json");
+        crate::safe_save_json(&self.storage, &user_data_path, "user_data", true);
+    }
+    pub fn mark_read(&mut self, feed_id: &FeedId, item_id: usize) {
+        self.storage
+            .entry(feed_id.clone())
+            .or_default()
+            .read_ids
+            .insert(item_id);
     }
 }

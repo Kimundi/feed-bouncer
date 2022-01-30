@@ -137,7 +137,7 @@ impl Database {
             };
 
             let mut existing = HashSet::new();
-            for item in source.feeds() {
+            for item in source.items() {
                 let key = item_key(&item.item);
                 existing.insert(key);
             }
@@ -173,9 +173,9 @@ impl Database {
                     }
                 }
                 for feed_item in feed_items {
-                    feed.push_feed(feed_item);
+                    feed.push_item(feed_item);
                 }
-                FeedItem::sort(&mut feed.feeds_mut(), |v| &v.item);
+                FeedItem::sort(&mut feed.items_mut(), |v| &v.item);
             }
         }
         self.last_feed_update = Some(chrono::Utc::now());

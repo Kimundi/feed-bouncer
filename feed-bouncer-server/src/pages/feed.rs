@@ -28,7 +28,7 @@ pub async fn feed(db: &State<SyncDatabase>, feed_id: String) -> Option<Template>
 
     let mut items = ItemBuilder::new(false);
     {
-        let mut feeds: Vec<&FeedItemMeta> = feed.feeds().iter().collect();
+        let mut feeds: Vec<&FeedItemMeta> = feed.items().iter().collect();
         FeedItem::sort(&mut feeds, |x| &x.item);
         feeds.reverse();
         feeds.dedup_by(|a, b| a.content_link() == b.content_link());
