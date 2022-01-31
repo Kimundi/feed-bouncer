@@ -8,18 +8,18 @@
         body {
             background-color: rgb(70, 70, 70);
             font-family: sans-serif;
-            color: white;
+            color: rgb(201, 200, 200);
             margin: 0 !important;
             padding: 0 !important;
         }
 
         a {
-            color: white;
+            color: rgb(201, 200, 200);
             text-decoration: none;
         }
 
         a.a_no_style {
-            color: white;
+            color: rgb(201, 200, 200);
             text-decoration: none;
         }
 
@@ -42,20 +42,29 @@
         .item_table {
             table-layout: fixed;
             width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .item_table_tr:nth-child(odd) td {
+            background-color: rgb(50, 50, 50);
         }
 
         .item_td_feed {
             width: 30%;
+            padding: 2px;
         }
 
         .item_td_item {
             width: 60%;
+            padding: 2px;
         }
 
         .item_td_read {
             width: 10%;
             text-align: right;
             font-size: small;
+            padding: 2px;
         }
 
         .item_td_read>a {

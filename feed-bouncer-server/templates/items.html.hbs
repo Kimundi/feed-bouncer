@@ -5,7 +5,7 @@
     </div>
     <table class="item_table">
         {{#each this.items}}
-        <tr>
+        <tr class="item_table_tr">
             {{#if this.show_feed}}
             <td class="item_td_feed">
                 <a href="/feed/{{this.feed_id}}">
@@ -22,8 +22,9 @@
                 </a>
                 {{/if}}
             </td>
-            <td class="item_td_read {{#if this.is_read}}my_hidden{{/if}}">
-                <a href="/mark_read/{{this.feed_id}}/{{this.item_id}}">read</a>
+            <td class="item_td_read">
+                <a class="{{#if this.is_read}}my_hidden{{/if}}"
+                    href="/mark_read/{{this.feed_id}}/{{this.item_id}}">read</a>
             </td>
         </tr>
         {{/each}}
