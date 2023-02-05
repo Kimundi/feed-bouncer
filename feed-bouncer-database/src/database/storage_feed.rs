@@ -155,7 +155,20 @@ impl Feed {
     pub fn title_aliases(&self) -> &BTreeSet<String> {
         &self.title_aliases
     }
-    pub fn title_aliases_mut(&mut self) -> &mut BTreeSet<String> {
-        &mut self.title_aliases
+    pub fn title_alias_insert(&mut self, name: &str) -> bool {
+        self.title_aliases.insert(name.trim().to_owned())
+    }
+    pub fn title_alias_remove(&mut self, name: &str) -> bool {
+        let mut keys = Vec::new();
+        for title_alias in &self.title_aliases {
+            if title_alias == name.trim() {
+                keys.push(title_alias.to_owned());
+            }
+        }
+        let mut was_deleted = false;
+        for key in keys {
+            was_deleted |= self.title_aliases.remove(&key);
+        }
+        was_deleted
     }
 }

@@ -122,7 +122,7 @@ pub async fn feed_add_alias(
 ) -> Option<Redirect> {
     let mut db = db.write().await;
     let feed = db.get_mut(&feed_id)?;
-    let is_new = feed.title_aliases_mut().insert(new_title.name.to_owned());
+    let is_new = feed.title_alias_insert(&new_title.name);
 
     if is_new {
         db.save();
@@ -140,7 +140,7 @@ pub async fn feed_remove_alias(
     let mut db = db.write().await;
     let feed = db.get_mut(&feed_id)?;
 
-    if feed.title_aliases_mut().remove(title) {
+    if feed.title_alias_remove(title) {
         db.save_shrunk();
     }
 

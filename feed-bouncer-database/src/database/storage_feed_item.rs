@@ -87,7 +87,10 @@ impl FeedItemMeta {
     }
     pub fn display_title_without_prefixes(&self, feed: &Feed) -> Option<&str> {
         self.display_title().map(|mut t| {
-            for a in feed.titles() {
+            let mut prefixes: Vec<_> = feed.titles().map(|e| e.trim()).collect();
+            prefixes.sort_by_key(|e| e.len());
+            prefixes.reverse();
+            for a in prefixes {
                 t = Self::strip_prefix(t, a);
             }
             t
