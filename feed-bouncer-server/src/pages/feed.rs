@@ -142,6 +142,8 @@ pub async fn feed_remove_alias(
 
     if feed.title_alias_remove(title) {
         db.save_shrunk();
+    } else {
+        println!("unknown title to remove: {:?}", title);
     }
 
     Some(Redirect::to(uri!(feed(feed_id))))
