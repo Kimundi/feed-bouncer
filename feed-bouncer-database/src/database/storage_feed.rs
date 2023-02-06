@@ -169,6 +169,12 @@ impl Feed {
         for key in keys {
             was_deleted |= self.title_aliases.remove(&key);
         }
+        if !was_deleted {
+            println!("did not delete {:?}, not found", name);
+            for candidate in &self.title_aliases {
+                println!("title: {:?}", candidate);
+            }
+        }
         was_deleted
     }
 }
