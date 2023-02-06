@@ -161,7 +161,7 @@ impl Feed {
     pub fn title_alias_remove(&mut self, name: &str) -> bool {
         let mut keys = Vec::new();
         for title_alias in &self.title_aliases {
-            if title_alias == name.trim() {
+            if title_alias.trim() == name.trim() {
                 keys.push(title_alias.to_owned());
             }
         }
@@ -171,8 +171,9 @@ impl Feed {
         }
         if !was_deleted {
             println!("did not delete {:?}, not found", name);
+            println!("known:");
             for candidate in &self.title_aliases {
-                println!("title: {:?}", candidate);
+                println!("  {:?}", candidate);
             }
         }
         was_deleted
